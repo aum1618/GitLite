@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClInclude Include="AVL.h" />
     <ClInclude Include="BTree.h" />
+    <ClInclude Include="CUSTOM_STRING.h" />
     <ClInclude Include="Hashes.h" />
     <ClInclude Include="RBTree.h" />
   </ItemGroup>

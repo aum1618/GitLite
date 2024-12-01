@@ -1,7 +1,7 @@
 # Script to merge changes from 'durrani' to all other branches and push the updates
 $branches = git branch | ForEach-Object { $_.Trim() } # Get all branches
 $currentBranch = (git branch --show-current).Trim() # Get the current branch
-$sourceBranch = "durrani" # Source branch for merging
+$sourceBranch = "umer" # Source branch for merging
 
 if ($currentBranch -ne $sourceBranch) {
     Write-Output "Switching to $sourceBranch branch..."
@@ -21,7 +21,8 @@ foreach ($branch in $branches) {
         if ($LASTEXITCODE -eq 0) {
             Write-Output "Pushing $branch to remote repository..."
             git push origin $branch
-        } else {
+        }
+        else {
             Write-Error "Merge failed for $branch. Resolve conflicts manually."
             exit 1
         }
