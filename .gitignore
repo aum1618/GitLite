@@ -10,6 +10,12 @@
 *.userosscache
 *.sln.docstates
 
+# Ignore node_<number>.txt files
+node_*.txt
+
+# Ignore all files inside the "root" folder
+root/*
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

@@ -1,264 +1,382 @@
 #pragma once
-// C++ Program to Implement AVL Tree
 #include <iostream>
+#include "FileHandling.h"
+
 using namespace std;
 
-// Template class representing a node in the AVL tree
-template <typename T> class AVLNode {
-public:
-	T key; // The value of the node
-	AVLNode* left; // Pointer to the left child
-	AVLNode* right; // Pointer to the right child
-	int height; // Height of the node in the tree
 
-	// Constructor to initialize a node with a given key
-	AVLNode(T k)
-		: key(k)
-		, left(nullptr)
-		, right(nullptr)
-		, height(1)
-	{
-	}
-};
 
 // Template class representing the AVL tree
 template <typename T> class AVLTree {
-private:
-	// Pointer to the root of the tree
-	AVLNode<T>* root;
-
-	// function to get the height of a node
-	int height(AVLNode<T>* node)
-	{
-		if (node == nullptr)
-			return 0;
-		return node->height;
-	}
-
-	// function to get the balance factor of a node
-	int balanceFactor(AVLNode<T>* node)
-	{
-		if (node == nullptr)
-			return 0;
-		return height(node->left) - height(node->right);
-	}
-
-	// function to perform a right rotation on a subtree
-	AVLNode<T>* rightRotate(AVLNode<T>* y)
-	{
-		AVLNode<T>* x = y->left;
-		AVLNode<T>* T2 = x->right;
-
-		// Perform rotation
-		x->right = y;
-		y->left = T2;
-
-		// Update heights
-		y->height
-			= max(height(y->left), height(y->right)) + 1;
-		x->height
-			= max(height(x->left), height(x->right)) + 1;
-
-		// Return new root
-		return x;
-	}
-
-	// function to perform a left rotation on a subtree
-	AVLNode<T>* leftRotate(AVLNode<T>* x)
-	{
-		AVLNode<T>* y = x->right;
-		AVLNode<T>* T2 = y->left;
-
-		y->left = x;
-		x->right = T2;
-
-		// Update heights
-		x->height
-			= max(height(x->left), height(x->right)) + 1;
-		y->height
-			= max(height(y->left), height(y->right)) + 1;
-
-		// Return new root
-		return y;
-	}
-
-	// function to insert a new key into the subtree rooted
-	// with node
-	AVLNode<T>* insert(AVLNode<T>* node, T key)
-	{
-		// Perform the normal BST insertion
-		if (node == nullptr)
-			return new AVLNode<T>(key);
-
-		if (key < node->key)
-			node->left = insert(node->left, key);
-		else if (key > node->key)
-			node->right = insert(node->right, key);
-		else
-			return node;
-
-		// Update height of this ancestor node
-		node->height = 1
-			+ max(height(node->left),
-				height(node->right));
-
-		// Get the balance factor of this ancestor node
-		int balance = balanceFactor(node);
-
-		// If this node becomes unbalanced, then there are 4
-		// cases
-
-		// Left Left Case
-		if (balance > 1 && key < node->left->key)
-			return rightRotate(node);
-
-		// Right Right Case
-		if (balance < -1 && key > node->right->key)
-			return leftRotate(node);
-
-		// Left Right Case
-		if (balance > 1 && key > node->left->key) {
-			node->left = leftRotate(node->left);
-			return rightRotate(node);
-		}
-
-		// Right Left Case
-		if (balance < -1 && key < node->right->key) {
-			node->right = rightRotate(node->right);
-			return leftRotate(node);
-		}
-
-		return node;
-	}
-
-	// function to find the node with the minimum key value
-	AVLNode<T>* minValueNode(AVLNode<T>* node)
-	{
-		AVLNode<T>* current = node;
-		while (current->left != nullptr)
-			current = current->left;
-		return current;
-	}
-
-	// function to delete a key from the subtree rooted with
-	// root
-	AVLNode<T>* deleteNode(AVLNode<T>* root, T key)
-	{
-		// Perform standard BST delete
-		if (root == nullptr)
-			return root;
-
-		if (key < root->key)
-			root->left = deleteNode(root->left, key);
-		else if (key > root->key)
-			root->right = deleteNode(root->right, key);
-		else {
-			// Node with only one child or no child
-			if ((root->left == nullptr)
-				|| (root->right == nullptr)) {
-				AVLNode<T>* temp
-					= root->left ? root->left : root->right;
-				if (temp == nullptr) {
-					temp = root;
-					root = nullptr;
-				}
-				else
-					*root = *temp;
-				delete temp;
-			}
-			else {
-
-				AVLNode<T>* temp
-					= minValueNode(root->right);
-				root->key = temp->key;
-				root->right
-					= deleteNode(root->right, temp->key);
-			}
-		}
-
-		if (root == nullptr)
-			return root;
-
-		// Update height of the current node
-		root->height = 1
-			+ max(height(root->left),
-				height(root->right));
-
-		// Get the balance factor of this node
-		int balance = balanceFactor(root);
-
-		// If this node becomes unbalanced, then there are 4
-		// cases
-
-		// Left Left Case
-		if (balance > 1 && balanceFactor(root->left) >= 0)
-			return rightRotate(root);
-
-		// Left Right Case
-		if (balance > 1 && balanceFactor(root->left) < 0) {
-			root->left = leftRotate(root->left);
-			return rightRotate(root);
-		}
-
-		// Right Right Case
-		if (balance < -1 && balanceFactor(root->right) <= 0)
-			return leftRotate(root);
-
-		// Right Left Case
-		if (balance < -1
-			&& balanceFactor(root->right) > 0) {
-			root->right = rightRotate(root->right);
-			return leftRotate(root);
-		}
-
-		return root;
-	}
-
-	// function to perform inorder traversal of the tree
-	void inorder(AVLNode<T>* root)
-	{
-		if (root != nullptr) {
-			inorder(root->left);
-			cout << root->key << " ";
-			inorder(root->right);
-		}
-	}
-
-	// function to search for a key in the subtree rooted
-	// with root
-	bool search(AVLNode<T>* root, T key)
-	{
-		if (root == nullptr)
-			return false;
-		if (root->key == key)
-			return true;
-		if (key < root->key)
-			return search(root->left, key);
-		return search(root->right, key);
-	}
-
 public:
-	// Constructor to initialize the AVL tree
-	AVLTree()
-		: root(nullptr)
-	{
+	string rootFile;
+
+
+	int fileHeight(string filename) {
+
+		if (filename == "null")
+			return 0;
+		ifstream file(filename);
+		if (!file.is_open()) {
+			cerr << "Error: Could not open file " << filename << endl;
+			return 0;
+		}
+		string line;
+		int height = 0;
+		while (getline(file, line)) {
+			if (line.find("Height=") == 0)
+				height = stoi(line.substr(7)); // Adjust if T is not int
+		}
+		file.close();
+		return height;
+
+
 	}
 
-	// Function to insert a key into the AVL tree
-	void insert(T key) { root = insert(root, key); }
 
-	// Function to remove a key from the AVL tree
-	void remove(T key) { root = deleteNode(root, key); }
+	int fileBalanceFactor(string filename) {
 
-	// Function to search for a key in the AVL tree
-	bool search(T key) { return search(root, key); }
+		if (filename == "null")
+			return 0;
+		ifstream file(filename);
+		if (!file.is_open()) {
+			cerr << "Error: Could not open file " << filename << endl;
+			return 0;
+		}
+		string line;
+		string leftFile;
+		string rightFile;
+		while (getline(file, line)) {
+			if (line.find("Left=") == 0)
+				leftFile = line.substr(5);
+			else if (line.find("Right=") == 0)
+				rightFile = line.substr(6);
+		}
+		file.close();
+		return fileHeight(leftFile) - fileHeight(rightFile);
+	}
 
-	// Function to print the inorder traversal of the AVL
-	// tree
-	void printInorder()
-	{
-		inorder(root);
+
+	void updateNodeHeight(string filename, int newHeight) {
+		ifstream file(filename);
+		if (!file.is_open()) {
+			cerr << "Error: Could not open file " << filename << endl;
+			return;
+		}
+
+		string content;
+		string line;
+		while (getline(file, line)) {
+			if (line.find("Height=") == 0) {
+				line = "Height=" + to_string(newHeight);
+			}
+			content += line + "\n";
+		}
+		file.close();
+
+		ofstream outFile(filename);
+		if (!outFile.is_open()) {
+			cerr << "Error: Could not write to file " << filename << endl;
+			return;
+		}
+		outFile << content;
+		outFile.close();
+	}
+
+	void updateNodeData(string filename, int data, string leftFile, string rightFile, int height) {
+		ofstream file(filename);
+		if (!file.is_open()) {
+			cerr << "Error: Could not open file " << filename << endl;
+			return;
+		}
+
+		file << "data=" << data << endl;
+		file << "Left=" << leftFile << endl;
+		file << "Right=" << rightFile << endl;
+		file << "Height=" << height << endl; // height is recalculated later after rotation
+		file.close();
+	}
+
+	string rightRotate(string yFile) {
+		ifstream y(yFile);
+		if (!y.is_open()) {
+			cerr << "Error: Could not open file " << yFile << endl;
+			return yFile;
+		}
+
+		string line;
+		string yLeftFile, yRightFile;
+		int yData;
+		while (getline(y, line)) {
+			if (line.find("data=") == 0) {
+				yData = stoi(line.substr(5));
+			}
+			if (line.find("Left=") == 0) {
+				yLeftFile = line.substr(5);
+			}
+			if (line.find("Right=") == 0) {
+				yRightFile = line.substr(6);
+			}
+		}
+		y.close();
+
+		// Step 1: Read left child node (x)
+		string xFile = yLeftFile;
+		ifstream x(xFile);
+		if (!x.is_open()) {
+			cerr << "Error: Could not open file " << xFile << endl;
+			return yFile;
+		}
+
+		string xRightFile, xLeftFile;
+		int xData;
+		while (getline(x, line)) {
+			if (line.find("data=") == 0) {
+				xData = stoi(line.substr(5));
+			}
+			if (line.find("Right=") == 0) {
+				xRightFile = line.substr(6);
+			}
+			if (line.find("Left=") == 0) {
+				xLeftFile = line.substr(5);
+			}
+		}
+		x.close();
+
+
+
+		// Step 3: Perform the right rotation by updating files
+		updateNodeData(xFile, xData, xLeftFile, yFile, fileHeight(xFile));
+		updateNodeData(yFile, yData, xRightFile, yRightFile, fileHeight(yFile));
+
+		// Step 4: Update the heights of the nodes
+		updateNodeHeight(xFile, max(fileHeight(xLeftFile), fileHeight(yFile)) + 1);
+		updateNodeHeight(yFile, max(fileHeight(xRightFile), fileHeight(yRightFile)) + 1);
+
+		return xFile;
+	}
+
+
+	string leftRotate(string xFile) {
+		ifstream x(xFile);
+		if (!x.is_open()) {
+			cerr << "Error: Could not open file " << xFile << endl;
+			return xFile;
+		}
+
+		string line;
+		string xLeftFile, xRightFile;
+		int xData;
+		while (getline(x, line)) {
+			if (line.find("data=") == 0) {
+				xData = stoi(line.substr(5));
+			}
+			if (line.find("Left=") == 0) {
+				xLeftFile = line.substr(5);
+			}
+			if (line.find("Right=") == 0) {
+				xRightFile = line.substr(6);
+			}
+		}
+		x.close();
+
+		// Step 1: Read right child node (y)
+		string yFile = xRightFile;
+		ifstream y(yFile);
+		if (!y.is_open()) {
+			cerr << "Error: Could not open file " << yFile << endl;
+			return xFile;
+		}
+
+		string yRightFile, yLeftFile;
+		int yData;
+		while (getline(y, line)) {
+			if (line.find("data=") == 0) {
+				yData = stoi(line.substr(5));
+			}
+			if (line.find("Right=") == 0) {
+				yRightFile = line.substr(6);
+			}
+			if (line.find("Left=") == 0) {
+				yLeftFile = line.substr(5);
+			}
+		}
+		y.close();
+
+		// Step 3: Perform the left rotation by updating files
+		updateNodeData(yFile, yData, xFile, yRightFile, fileHeight(yFile));
+		updateNodeData(xFile, xData, xLeftFile, yLeftFile, fileHeight(xFile));
+
+		// Step 4: Update the heights of the nodes
+		updateNodeHeight(yFile, max(fileHeight(xFile), fileHeight(yRightFile)) + 1);
+		updateNodeHeight(xFile, max(fileHeight(xLeftFile), fileHeight(yLeftFile)) + 1);
+
+		return yFile;
+	}
+
+
+	void insert(T key) {
+		string newRootFile = insertHelper(rootFile, key);
+		rootFile = newRootFile;
+	}
+
+
+
+	string insertHelper(string nodeFile, T key) {
+		cout << "Inserting " << key << " into " << nodeFile << endl;
+		if (nodeFile == "null") {
+			string newFileName = "node_" + to_string(key) + ".txt";
+			string content = "data=" + to_string(key) + "\n";
+			content += "Left=null\n";
+			content += "Right=null\n";
+			content += "Height=1\n";
+			createFile(newFileName, content);
+			return newFileName;
+		}
+
+		ifstream node(nodeFile);
+		if (!node.is_open()) {
+			cerr << "Error: Could not open file " << nodeFile << endl;
+			return nodeFile;
+		}
+
+		string line;
+		string leftFile, rightFile;
+		int data;
+		while (getline(node, line)) {
+			if (line.find("data=") == 0) {
+				data = stoi(line.substr(5));
+			}
+			if (line.find("Left=") == 0) {
+				leftFile = line.substr(5);
+			}
+			if (line.find("Right=") == 0) {
+				rightFile = line.substr(6);
+			}
+		}
+		node.close();
+
+		if (key < data) {
+			leftFile = insertHelper(leftFile, key);
+		}
+		else if (key > data) {
+			rightFile = insertHelper(rightFile, key);
+		}
+		int height = fileHeight(nodeFile);
+
+		updateNodeData(nodeFile, data, leftFile, rightFile, height);
+		updateNodeHeight(nodeFile, max(fileHeight(leftFile), fileHeight(rightFile)) + 1);
+
+		int balance = fileBalanceFactor(nodeFile);
+		if (balance > 1 && key < data) {
+			cout << "Right rotate on " << nodeFile << endl;
+			return rightRotate(nodeFile);
+		}
+		else if (balance < -1 && key > data) {
+			cout << "Left rotate on " << nodeFile << endl;
+			return leftRotate(nodeFile);
+		}
+		else if (balance > 1 && key > data) {
+			cout << "Left Right rotate on " << leftFile << endl;
+
+			leftRotate(leftFile);
+			return rightRotate(nodeFile);
+		}
+		else if (balance < -1 && key < data) {
+			cout << "Right Left rotate on " << rightFile << endl;
+			rightRotate(rightFile);
+			return leftRotate(nodeFile);
+		}
+		else
+			return nodeFile;
+	}
+
+
+
+
+
+	void inorderFile() {
+		cout << "Root: " << rootFile << endl;
+		inorderHelper(rootFile);
 		cout << endl;
 	}
+
+	void inorderHelper(string filename) {
+		if (filename == "null")
+			return;
+		ifstream file(filename);
+		if (!file.is_open()) {
+			cerr << "Error: Could not open file " << filename << endl;
+			return;
+		}
+		string line;
+		string leftFile, rightFile;
+		int data;
+		while (getline(file, line)) {
+			if (line.find("data=") == 0) {
+				data = stoi(line.substr(5));
+			}
+			if (line.find("Left=") == 0) {
+				leftFile = line.substr(5);
+			}
+			if (line.find("Right=") == 0) {
+				rightFile = line.substr(6);
+			}
+		}
+		file.close();
+
+		inorderHelper(leftFile);
+		cout << data << " ";
+		inorderHelper(rightFile);
+	}
+
+
+
+	bool searchFile(T key) {
+		return searchHelper(rootFile, key);
+	}
+
+	bool searchHelper(string filename, T key) {
+		if (filename == "null")
+			return false;
+		ifstream file(filename);
+		if (!file.is_open()) {
+			cerr << "Error: Could not open file " << filename << endl;
+			return false;
+		}
+		string line;
+		string leftFile, rightFile;
+		int data;
+		while (getline(file, line)) {
+			if (line.find("data=") == 0) {
+				data = stoi(line.substr(5));
+			}
+			if (line.find("Left=") == 0) {
+				leftFile = line.substr(5);
+			}
+			if (line.find("Right=") == 0) {
+				rightFile = line.substr(6);
+			}
+		}
+		file.close();
+
+		if (data == key)
+			return true;
+		if (key < data)
+			return searchHelper(leftFile, key);
+		return searchHelper(rightFile, key);
+	}
+
+	AVLTree()
+	{
+		rootFile = "null";
+	}
+
 };
+
+
+
+
+
+
 

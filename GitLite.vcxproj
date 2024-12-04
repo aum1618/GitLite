@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,7 +131,9 @@
     <ClInclude Include="AVL.h" />
     <ClInclude Include="BTree.h" />
     <ClInclude Include="CUSTOM_STRING.h" />
+    <ClInclude Include="FileHandling.h" />
     <ClInclude Include="Hashes.h" />
+    <ClInclude Include="menu.h" />
     <ClInclude Include="RBTree.h" />
   </ItemGroup>
   <ItemGroup>
