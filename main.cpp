@@ -114,11 +114,11 @@ int main()
 	tree.insert(31);
 	tree.insert(34);
 	tree.insert(11);
-
+	tree.deleteKey(34);
 	cout << "In-order traversal: ";
 	tree.inorderFile();
 
-	cout << "Search for 20: " << (tree.searchFile(20) ? "Found" : "Not Found") << endl;
+	cout << "Search for 30: " << (tree.searchFile(30) ? "Found" : "Not Found") << endl;
 	cout << "Search for 50: " << (tree.searchFile(50) ? "Found" : "Not Found") << endl;
 
 

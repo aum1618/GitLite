@@ -324,8 +324,6 @@ public:
 				return leftRotate(nodeFile); // Right-Left Case
 			}
 		}
-
-
 			return nodeFile;
 	}
 
@@ -403,6 +401,136 @@ public:
 		if (key < data)
 			return searchHelper(leftFile, key);
 		return searchHelper(rightFile, key);
+	}
+
+	//Deletion
+	void deleteKey(T key) {
+		string newRootFile = deleteHelper(rootFile, key);
+		rootFile = newRootFile;
+	}
+
+	string deleteHelper(string nodeFile, T key) {
+		if (nodeFile == "null") return "null";
+
+		// Step 1: Read the current node data
+		ifstream file(nodeFile);
+		if (!file.is_open()) {
+			cerr << "Error: Could not open file " << nodeFile << endl;
+			return nodeFile;
+		}
+
+		string line, leftFile, rightFile;
+		int data;
+		while (getline(file, line)) {
+			if (line.find("data=") == 0) data = stoi(line.substr(5));
+			if (line.find("Left=") == 0) leftFile = line.substr(5);
+			if (line.find("Right=") == 0) rightFile = line.substr(6);
+		}
+		file.close();
+
+		// Step 2: Traverse to the correct node
+		if (key < data) {
+			leftFile = deleteHelper(leftFile, key);
+		}
+		else if (key > data) {
+			rightFile = deleteHelper(rightFile, key);
+		}
+		else {
+			// Node to be deleted found
+			if (leftFile == "null" && rightFile == "null") {
+				// Case 1: No children
+				remove(nodeFile.c_str());
+				return "null";
+			}
+			else if (leftFile == "null") {
+				// Case 2: One child (right)
+				remove(nodeFile.c_str());
+				return rightFile;
+			}
+			else if (rightFile == "null") {
+				// Case 2: One child (left)
+				remove(nodeFile.c_str());
+				return leftFile;
+			}
+			else {
+				// Case 3: Two children
+				// Find the in-order predecessor
+				string predecessorFile = findMax(leftFile);
+				int predecessorData = getNodeData(predecessorFile);
+
+				// Copy predecessor's data to current node
+				updateNodeData(nodeFile, predecessorData, leftFile, rightFile, fileHeight(nodeFile));
+
+				// Delete the predecessor file
+				leftFile = deleteHelper(leftFile, predecessorData);
+			}
+		}
+
+		// Step 3: Update height and balance factor, then balance the tree
+		updateNodeHeight(nodeFile, max(fileHeight(leftFile), fileHeight(rightFile)) + 1);
+		int balance = fileBalanceFactor(nodeFile);
+
+		if (balance > 1) {
+			if (fileBalanceFactor(leftFile) >= 0) {
+				return rightRotate(nodeFile); // Left-Left case
+			}
+			else {
+				leftFile = leftRotate(leftFile);
+				updateNodeData(nodeFile, data, leftFile, rightFile, fileHeight(nodeFile));
+				return rightRotate(nodeFile); // Left-Right case
+			}
+		}
+		else if (balance < -1) {
+			if (fileBalanceFactor(rightFile) <= 0) {
+				return leftRotate(nodeFile); // Right-Right case
+			}
+			else {
+				rightFile = rightRotate(rightFile);
+				updateNodeData(nodeFile, data, leftFile, rightFile, fileHeight(nodeFile));
+				return leftRotate(nodeFile); // Right-Left case
+			}
+		}
+
+		return nodeFile;
+	}
+
+	// Helper to find the maximum value in a subtree
+	string findMax(string nodeFile) {
+		while (true) {
+			ifstream file(nodeFile);
+			if (!file.is_open()) {
+				cerr << "Error: Could not open file " << nodeFile << endl;
+				return "null";
+			}
+			string line, rightFile;
+			while (getline(file, line)) {
+				if (line.find("Right=") == 0) rightFile = line.substr(6);
+			}
+			file.close();
+
+			if (rightFile == "null") break;
+			nodeFile = rightFile;
+		}
+		return nodeFile;
+	}
+
+	// Helper to get node data from a file
+	int getNodeData(string nodeFile) {
+		ifstream file(nodeFile);
+		if (!file.is_open()) {
+			cerr << "Error: Could not open file " << nodeFile << endl;
+			return -1; // Error case
+		}
+		string line;
+		int data;
+		while (getline(file, line)) {
+			if (line.find("data=") == 0) {
+				data = stoi(line.substr(5));
+				break;
+			}
+		}
+		file.close();
+		return data;
 	}
 
 	AVLTree()
