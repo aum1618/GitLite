@@ -10,97 +10,97 @@ using namespace std;
 int main()
 {
 
-	string csvFile, column, treeType;
-	char** columns = nullptr;  // Pointer for storing column names
-	int choice, numColumns;
+	//string csvFile, column, treeType;
+	//char** columns = nullptr;  // Pointer for storing column names
+	//int choice, numColumns;
 
-	// Step 1: Initialization
-	displayInitializationHeader();
-	cout << "Enter the CSV file name: ";
-	cin >> csvFile;
+	//// Step 1: Initialization
+	//displayInitializationHeader();
+	//cout << "Enter the CSV file name: ";
+	//cin >> csvFile;
 
-	// Read the CSV file and display columns
-	if (!readCSVFileAndDisplayColumns(csvFile, columns, numColumns)) {
-		return 1; // Exit if CSV cannot be read
-	}
+	//// Read the CSV file and display columns
+	//if (!readCSVFileAndDisplayColumns(csvFile, columns, numColumns)) {
+	//	return 1; // Exit if CSV cannot be read
+	//}
 
-	// Ask user to select a column
-	cout << "\nSelect a column to use as the tree key (enter number): ";
-	int columnChoice;
-	cin >> columnChoice;
+	//// Ask user to select a column
+	//cout << "\nSelect a column to use as the tree key (enter number): ";
+	//int columnChoice;
+	//cin >> columnChoice;
 
-	if (columnChoice < 1 || columnChoice > numColumns) {
-		cout << "\nInvalid column choice. Exiting...\n";
-		freeColumns(columns, numColumns);  // Free the memory before exiting
-		return 1;
-	}
-	column = columns[columnChoice - 1];  // Set the selected column
+	//if (columnChoice < 1 || columnChoice > numColumns) {
+	//	cout << "\nInvalid column choice. Exiting...\n";
+	//	freeColumns(columns, numColumns);  // Free the memory before exiting
+	//	return 1;
+	//}
+	//column = columns[columnChoice - 1];  // Set the selected column
 
-	cout << "\nChoose tree type:\n";
-	cout << "1. AVL\n2. B\n3. Red-Black\n";
-	cout << "Select tree type (enter number): ";
-	cin >> treeType;
+	//cout << "\nChoose tree type:\n";
+	//cout << "1. AVL\n2. B\n3. Red-Black\n";
+	//cout << "Select tree type (enter number): ";
+	//cin >> treeType;
 
-	cout << "\nRepository initialized successfully with tree type " << treeType << " using column " << column << ".\n";
+	//cout << "\nRepository initialized successfully with tree type " << treeType << " using column " << column << ".\n";
 
-	// Step 2: Menu Loop
-	do {
-		cin.ignore();
-		displayMenu();
-		cin >> choice;
+	//// Step 2: Menu Loop
+	//do {
+	//	cin.ignore();
+	//	displayMenu();
+	//	cin >> choice;
 
-		switch (choice) {
-		case 1:
-			commit();
-			break;
+	//	switch (choice) {
+	//	case 1:
+	//		commit();
+	//		break;
 
-		case 2:
-			createBranch();
-			break;
+	//	case 2:
+	//		createBranch();
+	//		break;
 
-		case 3:
-			switchBranch();
-			break;
+	//	case 3:
+	//		switchBranch();
+	//		break;
 
-		case 4:
-			viewCommitHistory();
-			break;
+	//	case 4:
+	//		viewCommitHistory();
+	//		break;
 
-		case 5:
-			displayTreeStructure();
-			break;
+	//	case 5:
+	//		displayTreeStructure();
+	//		break;
 
-		case 6:
-			mergeBranches();
-			break;
+	//	case 6:
+	//		mergeBranches();
+	//		break;
 
-		case 7:
-			deleteBranch();
-			break;
+	//	case 7:
+	//		deleteBranch();
+	//		break;
 
-		case 8:
-			saveRepository();
-			break;
+	//	case 8:
+	//		saveRepository();
+	//		break;
 
-		case 9:
-			loadRepository();
-			break;
+	//	case 9:
+	//		loadRepository();
+	//		break;
 
-		case 10:
-			detectCorruption();
-			break;
+	//	case 10:
+	//		detectCorruption();
+	//		break;
 
-		case 11:
-			cout << "\nExiting GitLite. Goodbye!\n";
-			break;
+	//	case 11:
+	//		cout << "\nExiting GitLite. Goodbye!\n";
+	//		break;
 
-		default:
-			cout << "\nInvalid choice. Please try again.\n";
-		}
-	} while (choice != 11);
+	//	default:
+	//		cout << "\nInvalid choice. Please try again.\n";
+	//	}
+	//} while (choice != 11);
 
-	// Free the dynamically allocated memory before exiting
-	freeColumns(columns, numColumns);
+	//// Free the dynamically allocated memory before exiting
+	//freeColumns(columns, numColumns);
 	AVLTree<int> tree;
 
 	tree.insert(40);

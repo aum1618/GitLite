@@ -146,12 +146,12 @@ public:
 
 
 		// Step 3: Perform the right rotation by updating files
-		updateNodeData(xFile, xData, xLeftFile, yFile, fileHeight(xFile));
 		updateNodeData(yFile, yData, xRightFile, yRightFile, fileHeight(yFile));
+		updateNodeData(xFile, xData, xLeftFile, yFile, fileHeight(xFile));
 
 		// Step 4: Update the heights of the nodes
-		updateNodeHeight(xFile, max(fileHeight(xLeftFile), fileHeight(yFile)) + 1);
 		updateNodeHeight(yFile, max(fileHeight(xRightFile), fileHeight(yRightFile)) + 1);
+		updateNodeHeight(xFile, max(fileHeight(xLeftFile), fileHeight(yFile)) + 1);
 
 		return xFile;
 	}
@@ -208,8 +208,8 @@ public:
 		updateNodeData(xFile, xData, xLeftFile, yLeftFile, fileHeight(xFile));
 
 		// Step 4: Update the heights of the nodes
-		updateNodeHeight(yFile, max(fileHeight(xFile), fileHeight(yRightFile)) + 1);
 		updateNodeHeight(xFile, max(fileHeight(xLeftFile), fileHeight(yLeftFile)) + 1);
+		updateNodeHeight(yFile, max(fileHeight(xFile), fileHeight(yRightFile)) + 1);
 
 		return yFile;
 	}
@@ -217,6 +217,8 @@ public:
 
 	void insert(T key) {
 		string newRootFile = insertHelper(rootFile, key);
+		cout << "old rootfile is : " << rootFile << "new root file is : " << newRootFile << endl;
+		cout << endl;
 		rootFile = newRootFile;
 	}
 
@@ -258,36 +260,72 @@ public:
 
 		if (key < data) {
 			leftFile = insertHelper(leftFile, key);
+			cout << "returned value: " << leftFile << "node file: "<<nodeFile<< endl;
 		}
 		else if (key > data) {
 			rightFile = insertHelper(rightFile, key);
+			cout << "returned value: " << rightFile << "node file: " << nodeFile << endl;
+
 		}
 		int height = fileHeight(nodeFile);
-
+		cout << "Height of " << nodeFile << " is " << height << endl;
 		updateNodeData(nodeFile, data, leftFile, rightFile, height);
 		updateNodeHeight(nodeFile, max(fileHeight(leftFile), fileHeight(rightFile)) + 1);
-
+		cout << "New Height of " << nodeFile << " is now " << fileHeight(nodeFile) << endl;
 		int balance = fileBalanceFactor(nodeFile);
-		if (balance > 1 && key < data) {
-			cout << "Right rotate on " << nodeFile << endl;
-			return rightRotate(nodeFile);
+		cout << "Balance factor of " << nodeFile << " is " << balance << endl;
+		if (balance > 1) { // Left-heavy
+			ifstream leftChild(leftFile);
+			int leftChildData;
+			if (leftChild.is_open()) {
+				string line;
+				while (getline(leftChild, line)) {
+					if (line.find("data=") == 0) {
+						leftChildData = stoi(line.substr(5));
+						break;
+					}
+				}
+				leftChild.close();
+			}
+			if (key < leftChildData) {
+				cout << "Right rotate on " << nodeFile << endl;
+				return rightRotate(nodeFile); // Left-Left Case
+			}
+			else {
+				cout << "Left-Right rotate on " << leftFile << endl;
+				string newFile=leftRotate(leftFile);
+				int nodeHeight = fileHeight(nodeFile);
+				updateNodeData(nodeFile, data, newFile, rightFile,nodeHeight);
+				return rightRotate(nodeFile); // Left-Right Case
+			}
 		}
-		else if (balance < -1 && key > data) {
-			cout << "Left rotate on " << nodeFile << endl;
-			return leftRotate(nodeFile);
+		else if (balance < -1) { // Right-heavy
+			ifstream rightChild(rightFile);
+			int rightChildData;
+			if (rightChild.is_open()) {
+				string line;
+				while (getline(rightChild, line)) {
+					if (line.find("data=") == 0) {
+						rightChildData = stoi(line.substr(5));
+						break;
+					}
+				}
+				rightChild.close();
+			}
+			if (key > rightChildData) {
+				cout << "Left rotate on " << nodeFile << endl;
+				return leftRotate(nodeFile); // Right-Right Case
+			}
+			else {
+				cout << "Right-Left rotate on " << rightFile << endl;
+				string newFile = rightRotate(rightFile);
+				int nodeHeight = fileHeight(nodeFile);
+				updateNodeData(nodeFile, data, leftFile, newFile,nodeHeight);
+				return leftRotate(nodeFile); // Right-Left Case
+			}
 		}
-		else if (balance > 1 && key > data) {
-			cout << "Left Right rotate on " << leftFile << endl;
 
-			leftRotate(leftFile);
-			return rightRotate(nodeFile);
-		}
-		else if (balance < -1 && key < data) {
-			cout << "Right Left rotate on " << rightFile << endl;
-			rightRotate(rightFile);
-			return leftRotate(nodeFile);
-		}
-		else
+
 			return nodeFile;
 	}
 
@@ -373,10 +411,3 @@ public:
 	}
 
 };
-
-
-
-
-
-
-
