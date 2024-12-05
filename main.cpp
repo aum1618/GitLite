@@ -12,7 +12,7 @@ int main()
 
 	string csvFile, column, treeType;
 	char** columns = nullptr;  // Pointer for storing column names
-	int choice, numColumns;
+	int choice=0, numColumns=0;
 
 	// Step 1: Initialization
 	displayInitializationHeader();
@@ -23,7 +23,7 @@ int main()
 	if (!readCSVFileAndDisplayColumns(csvFile, columns, numColumns)) {
 		return 1; // Exit if CSV cannot be read
 	}
-
+	/*
 	// Ask user to select a column
 	cout << "\nSelect a column to use as the tree key (enter number): ";
 	int columnChoice;
@@ -121,6 +121,10 @@ int main()
 	cout << "Search for 20: " << (tree.searchFile(20) ? "Found" : "Not Found") << endl;
 	cout << "Search for 50: " << (tree.searchFile(50) ? "Found" : "Not Found") << endl;
 
+	*/
 
+	BTree<int, 3> tree;
+	tree.insert(10);
+	tree.insert(15);
 	return 0;
 }

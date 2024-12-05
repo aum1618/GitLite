@@ -1,6 +1,7 @@
 #pragma once
 // C++ Program to Implement B-Tree
 #include <iostream>
+#include <cstdio>  // For std::remove
 using namespace std;
 
 // class for the node present in a B-Tree
@@ -21,6 +22,12 @@ public:
 			children[i] = nullptr;
 	}
 };
+
+
+/*
+	keys comma sepeated
+
+*/
 
 // class for B-Tree
 template <typename T, int ORDER>
@@ -276,20 +283,188 @@ private:
 	}
 
 public:
-	BTree() { root = new BTreeNode<T, ORDER>(true); }
 
-	// Function to insert a key in the tree
-	void insert(T k) {
-		if (root->n == ORDER - 1) {
-			BTreeNode<T, ORDER>* s = new BTreeNode<T, ORDER>(false);
-			s->children[0] = root;
-			root = s;
-			splitChild(s, 0);
-			insertNonFull(s, k);
-		}
-		else
-			insertNonFull(root, k);
+	BTree() { //root = new BTreeNode<T, ORDER>(true); 
+
+		root = nullptr;
 	}
+
+
+	void createNode(const string& filename, const string& keys, const string& children = "", bool isLeaf = true) {
+		ofstream file(filename);
+		if (file) {
+			file << "Keys = " << keys << "\n";
+			if (!children.empty()) file << "Children = " << children << "\n";
+			file << "Leaf = " << (isLeaf ? 1 : 0) << "\n";
+			cout << "Node file " << filename << " created successfully.\n";
+		}
+		else {
+			cerr << "Error creating node file: " << filename << endl;
+		}
+		file.close();
+	}
+
+
+	void readNode(const string& filename, string& keys, string& children, bool& isLeaf) {
+		ifstream file(filename);
+		if (file) {
+			string line;
+			while (getline(file, line)) {
+				if (line.find("Keys = ") == 0) {
+					keys = line.substr(7); // Extract keys after "Keys = "
+				}
+				else if (line.find("Children = ") == 0) {
+					children = line.substr(11); // Extract children paths
+				}
+				else if (line.find("Leaf = ") == 0) {
+					isLeaf = (line.substr(7) == "1");
+				}
+			}
+			cout << "Node file " << filename << " read successfully.\n";
+		}
+		else {
+			cerr << "Error reading node file: " << filename << endl;
+		}
+		file.close();
+	}
+	
+
+	void updateNode(const string& filename, const string& newKeys, const string& newChildren = "") {
+		fstream file(filename, ios::in | ios::out);
+		if (file) {
+			string content, line;
+			while (getline(file, line)) {
+				if (line.find("Keys = ") == 0) {
+					line += "," + newKeys; // Append new keys
+				}
+				else if (line.find("Children = ") == 0 && !newChildren.empty()) {
+					line += "," + newChildren; // Append new children
+				}
+				content += line + "\n";
+			}
+			file.close();
+			ofstream outFile(filename);
+			outFile << content;
+			outFile.close();
+			cout << "Node file " << filename << " updated successfully.\n";
+		}
+		else {
+			cerr << "Error updating node file: " << filename << endl;
+		}
+	}
+	
+
+	void deleteNode(const string& filename) {
+		if (remove(filename.c_str()) == 0) {
+			cout << "Node file " << filename << " deleted successfully.\n";
+		}
+		else {
+			cerr << "Error deleting node file: " << filename << endl;
+		}
+	}
+
+
+
+
+	void deleteFile(const std::string& filename) {
+		// Attempt to delete the file
+		if (std::remove(filename.c_str()) == 0) {
+			std::cout << "File deleted successfully: " << filename << std::endl;
+		}
+		else {
+			std::cerr << "Error deleting file: " << filename << ". File may not exist." << std::endl;
+		}
+	}
+
+
+
+	void insert(T k) {
+		if (root == nullptr) {
+			// Create the root node and its file representation
+			root = new BTreeNode<T, ORDER>(true);
+			root->keys[0] = k;
+			root->n = 1;
+
+			// Save root information in a file
+			string filename = "node_" + to_string(k) + ".txt";
+			string keys = to_string(k);
+			createNode(filename, keys, "", true);
+
+			cout << "Root node created and key inserted: " << k << endl;
+			return;
+		}
+
+		if (root->n == ORDER - 1) {
+			// Root is full; need to split
+			BTreeNode<T, ORDER>* newRoot = new BTreeNode<T, ORDER>(false);
+			newRoot->children[0] = root;
+			splitChild(newRoot, 0);
+
+			int i = (k > newRoot->keys[0]) ? 1 : 0;
+			insertNonFull(newRoot->children[i], k);
+
+			// Delete the old root file
+			string oldFilename = generateNodeFilename(root);
+
+			if (std::remove(oldFilename.c_str()) == 0) {
+				cout << "Old root file deleted: " << oldFilename << endl;
+			}
+			else {
+				cerr << "Failed to delete old root file: " << oldFilename << endl;
+			}
+
+			root = newRoot;
+
+			// Create a new root file
+			string newRootFilename = generateNodeFilename(root);
+			string newRootKeys = generateKeysString(root);
+			createNode(newRootFilename, newRootKeys, "", false);
+
+			cout << "Root was split. New root created with key: " << root->keys[0] << endl;
+		}
+		else {
+			// Insert key in non-full root
+			insertNonFull(root, k);
+
+			// Delete the old root file
+			string oldFilename = generateNodeFilename(root);
+			if (std::remove(oldFilename.c_str()) == 0) {
+				cout << "Old root file deleted: " << oldFilename << endl;
+			}
+			else {
+				cerr << "Failed to delete old root file: " << oldFilename << endl;
+			}
+
+			// Create an updated file for the root
+			string newFilename = generateNodeFilename(root);
+			string keys = generateKeysString(root);
+			createNode(newFilename, keys, "", root->leaf);
+
+			cout << "Key inserted: " << k << endl;
+		}
+	}
+
+	// Helper functions
+	string generateNodeFilename(BTreeNode<T, ORDER>* node) {
+		string filename = "node_";
+		for (int i = 0; i < node->n; i++) {
+			if (i > 0) filename += "_";
+			filename += to_string(node->keys[i]);
+		}
+		filename += ".txt";
+		return filename;
+	}
+
+	string generateKeysString(BTreeNode<T, ORDER>* node) {
+		string keys;
+		for (int i = 0; i < node->n; i++) {
+			if (i > 0) keys += ",";
+			keys += to_string(node->keys[i]);
+		}
+		return keys;
+	}
+
+
 
 	// Function to traverse the tree
 	void traverse() {
