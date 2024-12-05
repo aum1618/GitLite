@@ -1,356 +1,535 @@
 #pragma once
-// C++ Program to Implement Red Black Tree
-
 #include <iostream>
+//#include "FileHandling.h"
+
 using namespace std;
 
-// Enumeration for colors of nodes in Red-Black Tree
-enum Color { RED, BLACK };
-
-// Class template for Red-Black Tree
 template <typename T> class RedBlackTree {
-private:
-	// Structure for a node in Red-Black Tree
-	struct Node {
-		T data;
-		Color color;
-		Node* parent;
-		Node* left;
-		Node* right;
-
-		// Constructor to initialize node with data and
-		// color
-		Node(T value)
-			: data(value)
-			, color(RED)
-			, parent(nullptr)
-			, left(nullptr)
-			, right(nullptr)
-		{
-		}
-	};
-
-	Node* root; // Root of the Red-Black Tree
-
-	// Utility function: Left Rotation
-	void rotateLeft(Node*& node)
-	{
-		Node* child = node->right;
-		node->right = child->left;
-		if (node->right != nullptr)
-			node->right->parent = node;
-		child->parent = node->parent;
-		if (node->parent == nullptr)
-			root = child;
-		else if (node == node->parent->left)
-			node->parent->left = child;
-		else
-			node->parent->right = child;
-		child->left = node;
-		node->parent = child;
-	}
-
-	// Utility function: Right Rotation
-	void rotateRight(Node*& node)
-	{
-		Node* child = node->left;
-		node->left = child->right;
-		if (node->left != nullptr)
-			node->left->parent = node;
-		child->parent = node->parent;
-		if (node->parent == nullptr)
-			root = child;
-		else if (node == node->parent->left)
-			node->parent->left = child;
-		else
-			node->parent->right = child;
-		child->right = node;
-		node->parent = child;
-	}
-
-	// Utility function: Fixing Insertion Violation
-	void fixInsert(Node*& node)
-	{
-		Node* parent = nullptr;
-		Node* grandparent = nullptr;
-		while (node != root && node->color == RED
-			&& node->parent->color == RED) {
-			parent = node->parent;
-			grandparent = parent->parent;
-			if (parent == grandparent->left) {
-				Node* uncle = grandparent->right;
-				if (uncle != nullptr
-					&& uncle->color == RED) {
-					grandparent->color = RED;
-					parent->color = BLACK;
-					uncle->color = BLACK;
-					node = grandparent;
-				}
-				else {
-					if (node == parent->right) {
-						rotateLeft(parent);
-						node = parent;
-						parent = node->parent;
-					}
-					rotateRight(grandparent);
-					swap(parent->color, grandparent->color);
-					node = parent;
-				}
-			}
-			else {
-				Node* uncle = grandparent->left;
-				if (uncle != nullptr
-					&& uncle->color == RED) {
-					grandparent->color = RED;
-					parent->color = BLACK;
-					uncle->color = BLACK;
-					node = grandparent;
-				}
-				else {
-					if (node == parent->left) {
-						rotateRight(parent);
-						node = parent;
-						parent = node->parent;
-					}
-					rotateLeft(grandparent);
-					swap(parent->color, grandparent->color);
-					node = parent;
-				}
-			}
-		}
-		root->color = BLACK;
-	}
-
-	// Utility function: Fixing Deletion Violation
-	void fixDelete(Node*& node)
-	{
-		while (node != root && node->color == BLACK) {
-			if (node == node->parent->left) {
-				Node* sibling = node->parent->right;
-				if (sibling->color == RED) {
-					sibling->color = BLACK;
-					node->parent->color = RED;
-					rotateLeft(node->parent);
-					sibling = node->parent->right;
-				}
-				if ((sibling->left == nullptr
-					|| sibling->left->color == BLACK)
-					&& (sibling->right == nullptr
-						|| sibling->right->color
-						== BLACK)) {
-					sibling->color = RED;
-					node = node->parent;
-				}
-				else {
-					if (sibling->right == nullptr
-						|| sibling->right->color == BLACK) {
-						if (sibling->left != nullptr)
-							sibling->left->color = BLACK;
-						sibling->color = RED;
-						rotateRight(sibling);
-						sibling = node->parent->right;
-					}
-					sibling->color = node->parent->color;
-					node->parent->color = BLACK;
-					if (sibling->right != nullptr)
-						sibling->right->color = BLACK;
-					rotateLeft(node->parent);
-					node = root;
-				}
-			}
-			else {
-				Node* sibling = node->parent->left;
-				if (sibling->color == RED) {
-					sibling->color = BLACK;
-					node->parent->color = RED;
-					rotateRight(node->parent);
-					sibling = node->parent->left;
-				}
-				if ((sibling->left == nullptr
-					|| sibling->left->color == BLACK)
-					&& (sibling->right == nullptr
-						|| sibling->right->color
-						== BLACK)) {
-					sibling->color = RED;
-					node = node->parent;
-				}
-				else {
-					if (sibling->left == nullptr
-						|| sibling->left->color == BLACK) {
-						if (sibling->right != nullptr)
-							sibling->right->color = BLACK;
-						sibling->color = RED;
-						rotateLeft(sibling);
-						sibling = node->parent->left;
-					}
-					sibling->color = node->parent->color;
-					node->parent->color = BLACK;
-					if (sibling->left != nullptr)
-						sibling->left->color = BLACK;
-					rotateRight(node->parent);
-					node = root;
-				}
-			}
-		}
-		node->color = BLACK;
-	}
-
-	// Utility function: Find Node with Minimum Value
-	Node* minValueNode(Node*& node)
-	{
-		Node* current = node;
-		while (current->left != nullptr)
-			current = current->left;
-		return current;
-	}
-
-	// Utility function: Transplant nodes in Red-Black Tree
-	void transplant(Node*& root, Node*& u, Node*& v)
-	{
-		if (u->parent == nullptr)
-			root = v;
-		else if (u == u->parent->left)
-			u->parent->left = v;
-		else
-			u->parent->right = v;
-		if (v != nullptr)
-			v->parent = u->parent;
-	}
-
-	// Utility function: Helper to print Red-Black Tree
-	void printHelper(Node* root, string indent, bool last)
-	{
-		if (root != nullptr) {
-			cout << indent;
-			if (last) {
-				cout << "R----";
-				indent += "   ";
-			}
-			else {
-				cout << "L----";
-				indent += "|  ";
-			}
-			string sColor
-				= (root->color == RED) ? "RED" : "BLACK";
-			cout << root->data << "(" << sColor << ")"
-				<< endl;
-			printHelper(root->left, indent, false);
-			printHelper(root->right, indent, true);
-		}
-	}
-
-	// Utility function: Delete all nodes in the Red-Black
-	// Tree
-	void deleteTree(Node* node)
-	{
-		if (node != nullptr) {
-			deleteTree(node->left);
-			deleteTree(node->right);
-			delete node;
-		}
-	}
-
 public:
-	// Constructor: Initialize Red-Black Tree
-	RedBlackTree()
-		: root(nullptr)
-	{
-	}
+    string rootFile;
 
-	// Destructor: Delete Red-Black Tree
-	~RedBlackTree() { deleteTree(root); }
+    void updateNodeData(string filename, T data, string leftFile, string rightFile,bool isRed) {
+        ofstream file(filename);
+        if (!file.is_open()) {
+            cerr << "Error: Could not open file " << filename << endl;
+            return;
+        }
 
-	// Public function: Insert a value into Red-Black Tree
-	void insert(T key)
-	{
-		Node* node = new Node(key);
-		Node* parent = nullptr;
-		Node* current = root;
-		while (current != nullptr) {
-			parent = current;
-			if (node->data < current->data)
-				current = current->left;
-			else
-				current = current->right;
-		}
-		node->parent = parent;
-		if (parent == nullptr)
-			root = node;
-		else if (node->data < parent->data)
-			parent->left = node;
-		else
-			parent->right = node;
-		fixInsert(node);
-	}
+        file << "data=" << data << endl;
+        file << "Left=" << leftFile << endl;
+        file << "Right=" << rightFile << endl;
+        file << "isRed=" << isRed << endl;
+        file.close();
+        cout << "Updated node " << filename << " with data=" << data << ", left=" << leftFile << ", right=" << rightFile << ", isRed=" << isRed << endl;
+    }
 
-	// Public function: Remove a value from Red-Black Tree
-	void remove(T key)
-	{
-		Node* node = root;
-		Node* z = nullptr;
-		Node* x = nullptr;
-		Node* y = nullptr;
-		while (node != nullptr) {
-			if (node->data == key) {
-				z = node;
-			}
+    bool isRed(string filename) {
+        if (filename == "null") return false;
 
-			if (node->data <= key) {
-				node = node->right;
-			}
-			else {
-				node = node->left;
-			}
-		}
+        ifstream file(filename);
+        if (!file.is_open()) {
+            cerr << "Error: Could not open file " << filename << endl;
+            return false;
+        }
 
-		if (z == nullptr) {
-			cout << "Key not found in the tree" << endl;
-			return;
-		}
+        string line;
+        while (getline(file, line)) {
+            if (line.find("isRed=") == 0) {
+                bool red = line.substr(6) == "1";
+                cout << "Node " << filename << " isRed=" << red << endl;
+                return red;
+            }
+        }
+        file.close();
+        return false;
+    }
+    string rotateLeft(string yFile) {
+        ifstream y(yFile);
+        if (!y.is_open()) {
+            cerr << "Error: Could not open file " << yFile << endl;
+            return yFile;
+        }
 
-		y = z;
-		Color yOriginalColor = y->color;
-		if (z->left == nullptr) {
-			x = z->right;
-			transplant(root, z, z->right);
-		}
-		else if (z->right == nullptr) {
-			x = z->left;
-			transplant(root, z, z->left);
-		}
-		else {
-			y = minValueNode(z->right);
-			yOriginalColor = y->color;
-			x = y->right;
-			if (y->parent == z) {
-				if (x != nullptr)
-					x->parent = y;
-			}
-			else {
-				transplant(root, y, y->right);
-				y->right = z->right;
-				y->right->parent = y;
-			}
-			transplant(root, z, y);
-			y->left = z->left;
-			y->left->parent = y;
-			y->color = z->color;
-		}
-		delete z;
-		if (yOriginalColor == BLACK) {
-			fixDelete(x);
-		}
-	}
+        string line;
+        string yLeftFile, yRightFile;
+        int yData;
+        bool yIsRed;
+        while (getline(y, line)) {
+            if (line.find("data=") == 0) {
+                yData = stoi(line.substr(5));
+            }
+            if (line.find("Left=") == 0) {
+                yLeftFile = line.substr(5);
+            }
+            if (line.find("Right=") == 0) {
+                yRightFile = line.substr(6);
+            }
+            if (line.find("isRed=") == 0) yIsRed = (line.substr(6) == "1");
+        }
+        y.close();
 
-	// Public function: Print the Red-Black Tree
-	void printTree()
-	{
-		if (root == nullptr)
-			cout << "Tree is empty." << endl;
-		else {
-			cout << "Red-Black Tree:" << endl;
-			printHelper(root, "", true);
-		}
-	}
+        // Read right child node (x)
+        string xFile = yRightFile;
+        ifstream x(xFile);
+        if (!x.is_open()) {
+            cerr << "Error: Could not open file " << xFile << endl;
+            return yFile;
+        }
+        bool xIsRed;
+        string xRightFile, xLeftFile;
+        int xData;
+        while (getline(x, line)) {
+            if (line.find("data=") == 0) {
+                xData = stoi(line.substr(5));
+            }
+            if (line.find("Right=") == 0) {
+                xRightFile = line.substr(6);
+            }
+            if (line.find("Left=") == 0) {
+                xLeftFile = line.substr(5);
+            }
+            if (line.find("isRed=") == 0) xIsRed = (line.substr(6) == "1");
+        }
+        x.close();
+
+        // Perform the left rotation by updating files
+        updateNodeData(yFile, yData, yLeftFile, xLeftFile, yIsRed);
+        updateNodeData(xFile, xData, yFile, xRightFile, xIsRed);
+
+        return xFile;
+    }
+   
+    string rotateRight(string yFile) {
+        ifstream y(yFile);
+        if (!y.is_open()) {
+            cerr << "Error: Could not open file " << yFile << endl;
+            return yFile;
+        }
+
+        string line;
+        string yLeftFile, yRightFile;
+        int yData;
+        bool yIsRed;
+        while (getline(y, line)) {
+            if (line.find("data=") == 0) {
+                yData = stoi(line.substr(5));
+            }
+            if (line.find("Left=") == 0) {
+                yLeftFile = line.substr(5);
+            }
+            if (line.find("Right=") == 0) {
+                yRightFile = line.substr(6);
+            }
+            if (line.find("isRed=") == 0) yIsRed = (line.substr(6) == "1");
+
+        }
+        y.close();
+
+        // Step 1: Read left child node (x)
+        string xFile = yLeftFile;
+        ifstream x(xFile);
+        if (!x.is_open()) {
+            cerr << "Error: Could not open file " << xFile << endl;
+            return yFile;
+        }
+        bool xIsRed;
+        string xRightFile, xLeftFile;
+        int xData;
+        while (getline(x, line)) {
+            if (line.find("data=") == 0) {
+                xData = stoi(line.substr(5));
+            }
+            if (line.find("Right=") == 0) {
+                xRightFile = line.substr(6);
+            }
+            if (line.find("Left=") == 0) {
+                xLeftFile = line.substr(5);
+            }
+            if (line.find("isRed=") == 0) xIsRed = (line.substr(6) == "1");
+        }
+        x.close();
+
+        // Step 3: Perform the right rotation by updating files
+        updateNodeData(yFile, yData, xRightFile, yRightFile, yIsRed);
+        updateNodeData(xFile, xData, xLeftFile, yFile, xIsRed);
+
+        return xFile;
+    }
+
+    
+
+    void flipColors(string h) {
+        cout << "Flipping colors for node " << h << endl;
+        ifstream hFile(h);
+        if (!hFile.is_open()) {
+            cerr << "Error: Could not open file " << h << endl;
+            return;
+        }
+
+        string line;
+        string hLeftFile, hRightFile;
+        T hData;
+        bool hIsRed;
+        while (getline(hFile, line)) {
+            if (line.find("data=") == 0) hData = stoi(line.substr(5));
+            if (line.find("Left=") == 0) hLeftFile = line.substr(5);
+            if (line.find("Right=") == 0) hRightFile = line.substr(6);
+            if (line.find("isRed=") == 0) hIsRed = (line.substr(6) == "1");
+        }
+        hFile.close();
+
+        updateNodeData(h, hData, hLeftFile, hRightFile, !hIsRed);
+
+        if (hLeftFile != "null") {
+            ifstream leftFile(hLeftFile);
+            T leftData;
+            string leftLeft, leftRight;
+            bool leftIsRed;
+            while (getline(leftFile, line)) {
+                if (line.find("data=") == 0) leftData = stoi(line.substr(5));
+                if (line.find("Left=") == 0) leftLeft = line.substr(5);
+                if (line.find("Right=") == 0) leftRight = line.substr(6);
+                if (line.find("isRed=") == 0) leftIsRed = (line.substr(6) == "1");
+            }
+            leftFile.close();
+            updateNodeData(hLeftFile, leftData, leftLeft, leftRight, !leftIsRed);
+        }
+
+        if (hRightFile != "null") {
+            ifstream rightFile(hRightFile);
+            T rightData;
+            string rightLeft, rightRight;
+            bool rightIsRed;
+            while (getline(rightFile, line)) {
+                if (line.find("data=") == 0) rightData = stoi(line.substr(5));
+                if (line.find("Left=") == 0) rightLeft = line.substr(5);
+                if (line.find("Right=") == 0) rightRight = line.substr(6);
+                if (line.find("isRed=") == 0) rightIsRed = (line.substr(6) == "1");
+            }
+            rightFile.close();
+            updateNodeData(hRightFile, rightData, rightLeft, rightRight, !rightIsRed);
+        }
+        cout << "Color flip completed" << endl;
+    }
+
+    string insertHelper(string h, T key) {
+        cout << "Inserting " << key << " into " << h << endl;
+        if (h == "null") {
+            string newFileName = "rb_node_" + to_string(key) + ".txt";
+            string content = "data=" + to_string(key) + "\n";
+            content += "Left=null\n";
+            content += "Right=null\n";
+            content += "isRed=1\n";
+            createFile(newFileName, content);
+            cout << "Created new red node: " << newFileName << endl;
+            return newFileName;
+        }
+
+        ifstream hFile(h);
+        string line;
+        string leftFile, rightFile;
+        T data;
+        bool isRedVal;
+        while (getline(hFile, line)) {
+            if (line.find("data=") == 0) data = stoi(line.substr(5));
+            if (line.find("Left=") == 0) leftFile = line.substr(5);
+            if (line.find("Right=") == 0) rightFile = line.substr(6);
+            if (line.find("isRed=") == 0) isRedVal = (line.substr(6) == "1");
+        }
+        hFile.close();
+
+        if (key < data) {
+            cout << "Going left from " << h << endl;
+            leftFile = insertHelper(leftFile, key);
+            //updateNodeData(h, data, leftFile, rightFile, isRedVal);
+        }
+        else if (key > data) {
+            cout << "Going right from " << h << endl;
+            rightFile = insertHelper(rightFile, key);
+            //updateNodeData(h, data, leftFile, rightFile, isRedVal);
+           
+        }
+        else return h;
+        
+        ifstream newhFile(h);
+        string newline;
+        bool newisRedVal;
+        while (getline(newhFile, newline)) {
+            
+            if (newline.find("isRed=") == 0) newisRedVal = (newline.substr(6) == "1");
+        }
+        newhFile.close();
+        updateNodeData(h, data, leftFile, rightFile, newisRedVal);
+
+        // Fix Red-Black tree violations
+       
+        if (isRed(h) && isRed(leftFile))
+        {
+            if (isRed(findSibling(h)))
+            {
+                updateColor(findSibling(h), false);
+                updateColor(h,  false);
+                updateColor(findParent(h), true);
+            }
+            else
+            {
+                h = rotateRight(findParent(h));
+                
+                updateColor(h, false);
+                updateColor(getRightFile(h), true);
+            }
+        }
+        if (isRed(rightFile) && isRed(h))
+        {
+            if (isRed(findSibling(h)))
+            {
+                updateColor(findSibling(h), false);
+                updateColor(h, false);
+                updateColor(findParent(h), true);
+            }
+            else
+            {
+                h = rotateLeft(findParent(h));
+                updateColor(h, false);
+                updateColor(getLeftFile(h), true);
+            }
+        }
+       
+
+        return h;
+    }
+
+    void inorderHelper(string filename) {
+        if (filename == "null") return;
+
+        ifstream file(filename);
+        if (!file.is_open()) {
+            cerr << "Error: Could not open file " << filename << endl;
+            return;
+        }
+
+        string line;
+        string leftFile, rightFile;
+        T data;
+        bool isRed;
+        while (getline(file, line)) {
+            if (line.find("data=") == 0) data = stoi(line.substr(5));
+            if (line.find("Left=") == 0) leftFile = line.substr(5);
+            if (line.find("Right=") == 0) rightFile = line.substr(6);
+            if (line.find("isRed=") == 0) isRed = (line.substr(6) == "1");
+        }
+        file.close();
+
+        inorderHelper(leftFile);
+        cout << data << "(" << (isRed ? "R" : "B") << ") ";
+        inorderHelper(rightFile);
+    }
+
+    RedBlackTree() {
+        rootFile = "null";
+        cout << "Created new Red-Black Tree with null root" << endl;
+    }
+
+    void insert(T key) {
+        cout << "\nInserting " << key << " into Red-Black Tree" << endl;
+        cout << "Current root: " << rootFile << endl;
+
+        rootFile = insertHelper(rootFile, key);
+
+        // Root must always be black
+        ifstream root(rootFile);
+        if (root.is_open()) {
+            string line;
+            T rootData;
+            string leftFile, rightFile;
+            while (getline(root, line)) {
+                if (line.find("data=") == 0) rootData = stoi(line.substr(5));
+                if (line.find("Left=") == 0) leftFile = line.substr(5);
+                if (line.find("Right=") == 0) rightFile = line.substr(6);
+            }
+            root.close();
+            updateNodeData(rootFile, rootData, leftFile, rightFile, false);
+        }
+        cout << "New root: " << rootFile << " (set to black)" << endl;
+    }
+
+    void inorder() {
+        cout << "\nInorder traversal of Red-Black Tree:" << endl;
+        cout << "Root: " << rootFile << endl;
+        inorderHelper(rootFile);
+        cout << endl;
+    }
+    string getLeftFile(string filename) {
+        if (filename == "null") return "null";
+
+        ifstream file(filename);
+        if (!file.is_open()) {
+            cerr << "Error: Could not open file " << filename << endl;
+            return "null";
+        }
+
+        string line;
+        string leftFile;
+        while (getline(file, line)) {
+            if (line.find("Left=") == 0) {
+                leftFile = line.substr(5);
+                break;
+            }
+        }
+        file.close();
+        return leftFile;
+    }
+
+    string getRightFile(string filename) {
+        if (filename == "null") return "null";
+
+        ifstream file(filename);
+        if (!file.is_open()) {
+            cerr << "Error: Could not open file " << filename << endl;
+            return "null";
+        }
+
+        string line;
+        string rightFile;
+        while (getline(file, line)) {
+            if (line.find("Right=") == 0) {
+                rightFile = line.substr(6);
+                break;
+            }
+        }
+        file.close();
+        return rightFile;
+    }
+
+    string findParent(string nodeFile) {
+        if (nodeFile == "null" || nodeFile == rootFile) {
+            return "null";
+        }
+
+        string current = rootFile;
+        T nodeData;
+
+        // Get node's data value
+        ifstream nodeStream(nodeFile);
+        string line;
+        while (getline(nodeStream, line)) {
+            if (line.find("data=") == 0) {
+                nodeData = stoi(line.substr(5));
+                break;
+            }
+        }
+        nodeStream.close();
+
+        while (current != "null") 
+        {
+            string leftChild = getLeftFile(current);
+            string rightChild = getRightFile(current);
+
+            if (leftChild == nodeFile || rightChild == nodeFile) {
+                return current;
+            }
+
+            ifstream currentFile(current);
+            T currentData;
+            while (getline(currentFile, line)) {
+                if (line.find("data=") == 0) {
+                    currentData = stoi(line.substr(5));
+                    break;
+                }
+            }
+            currentFile.close();
+
+            if (nodeData < currentData) {
+                current = leftChild;
+            }
+            else {
+                current = rightChild;
+            }
+        }
+        return "null";
+    }
+
+    string findSibling(string nodeFile) {
+        if (nodeFile == "null" || nodeFile == rootFile) {
+            return "null"; // Root or null node has no sibling
+        }
+
+        string parent = findParent(nodeFile);
+        if (parent == "null") {
+            return "null";
+        }
+
+        string leftChild = getLeftFile(parent);
+        string rightChild = getRightFile(parent);
+
+        if (leftChild == nodeFile) {
+            return rightChild;
+        }
+        else {
+            return leftChild;
+        }
+    }
+
+    string findUncle(string nodeFile) {
+        if (nodeFile == "null" || nodeFile == rootFile) {
+            return "null"; // Root or null node has no uncle
+        }
+
+        string parent = findParent(nodeFile);
+        if (parent == "null" || parent == rootFile) {
+            return "null"; // No uncle if no parent or parent is root
+        }
+
+        string grandParent = findParent(parent);
+        if (grandParent == "null") {
+            return "null"; // No uncle if no grandparent
+        }
+
+        // Get uncle - if parent is left child, uncle is right child and vice versa
+        string leftGP = getLeftFile(grandParent);
+        string rightGP = getRightFile(grandParent);
+
+        if (leftGP == parent) {
+            return rightGP;
+        }
+        else {
+            return leftGP;
+        }
+    }
+
+    void updateColor(string filename, bool newColor) {
+        if (filename == "null") return;
+
+        ifstream inFile(filename);
+        if (!inFile.is_open()) {
+            cerr << "Error: Could not open file " << filename << endl;
+            return;
+        }
+
+        // Read current node data
+        string line;
+        T data;
+        string leftFile, rightFile;
+        while (getline(inFile, line)) {
+            if (line.find("data=") == 0) data = stoi(line.substr(5));
+            if (line.find("Left=") == 0) leftFile = line.substr(5);
+            if (line.find("Right=") == 0) rightFile = line.substr(6);
+        }
+        inFile.close();
+
+        // Update node with new color
+        updateNodeData(filename, data, leftFile, rightFile, newColor);
+        cout << "new Color is: " << newColor << endl;
+        cout << "Updated color of node " << filename << " to " << (newColor ? "Red" : "Black") << endl;
+    }
+
+    void renameFile(const string& oldName, const string& newName) {
+        if (rename(oldName.c_str(), newName.c_str()) != 0) {
+            cerr << "Error renaming file " << oldName << " to " << newName << endl;
+            return;
+        }
+        cout << "Renamed file " << oldName << " to " << newName << endl;
+    }
 };
+
 

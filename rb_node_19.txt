@@ -1,0 +1,4 @@
+data=19
+Left=rb_node_10.txt
+Right=rb_node_30.txt
+isRed=1

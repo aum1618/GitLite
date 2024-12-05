@@ -1,0 +1,4 @@
+data=25
+Left=null
+Right=null
+isRed=1

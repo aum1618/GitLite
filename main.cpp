@@ -101,7 +101,7 @@ int main()
 
 	//// Free the dynamically allocated memory before exiting
 	//freeColumns(columns, numColumns);
-	AVLTree<int> tree;
+	/*AVLTree<int> tree;
 
 	tree.insert(40);
 	tree.insert(59);
@@ -119,8 +119,19 @@ int main()
 	tree.inorderFile();
 
 	cout << "Search for 20: " << (tree.searchFile(20) ? "Found" : "Not Found") << endl;
-	cout << "Search for 50: " << (tree.searchFile(50) ? "Found" : "Not Found") << endl;
-
-
+	cout << "Search for 50: " << (tree.searchFile(50) ? "Found" : "Not Found") << endl;*/
+    RedBlackTree<int> rb;
+	rb.insert(40);
+	rb.insert(59);
+	rb.insert(19);
+	rb.insert(30);
+	rb.insert(10);
+	rb.insert(27);
+	rb.insert(20);
+	//rb.insert(25);
+	//rb.insert(31);
+	//rb.insert(34);
+	//rb.insert(11);
+	rb.inorder();
 	return 0;
 }

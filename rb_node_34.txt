@@ -1,0 +1,4 @@
+data=34
+Left=null
+Right=rb_node_59.txt
+isRed=1
