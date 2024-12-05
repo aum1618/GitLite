@@ -52,3 +52,36 @@ void deleteFile(const string& filename) {
 		cerr << "Error deleting file. File might not exist.\n";
 	}
 }
+
+void renameFile(const string& oldName, const string& newName) {
+	// Open the old file in read mode
+	ifstream oldFile(oldName);
+	if (!oldFile) {
+		cerr << "Error: Unable to open the old file.\n";
+		return;
+	}
+
+	// Create a new file and write the content of the old file to it
+	ofstream newFile(newName);
+	if (!newFile) {
+		cerr << "Error: Unable to create the new file.\n";
+		oldFile.close();
+		return;
+	}
+
+	string line;
+	while (getline(oldFile, line)) {
+		newFile << line << endl;
+	}
+
+	oldFile.close();
+	newFile.close();
+
+	// Delete the old file after successfully creating the new file
+	if (remove(oldName.c_str()) == 0) {
+		cout << "File renamed successfully.\n";
+	}
+	else {
+		cerr << "Error deleting the old file.\n";
+	}
+}

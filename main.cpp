@@ -114,7 +114,9 @@ int main()
 	tree.insert(31);
 	tree.insert(34);
 	tree.insert(11);
-	tree.deleteKey(34);
+	tree.deleteKey(31);
+	//tree.deleteKey(31);
+	//tree.deleteKey(59);
 	cout << "In-order traversal: ";
 	tree.inorderFile();
 

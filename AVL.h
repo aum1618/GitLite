@@ -404,95 +404,84 @@ public:
 	}
 
 	//Deletion
-	void deleteKey(T key) {
-		string newRootFile = deleteHelper(rootFile, key);
-		rootFile = newRootFile;
-	}
+	// Add this method to the AVLTree class
 
-	string deleteHelper(string nodeFile, T key) {
-		if (nodeFile == "null") return "null";
+string deleteHelper(string nodeFile, T key) {
+    if (nodeFile == "null") return "null";
 
-		// Step 1: Read the current node data
-		ifstream file(nodeFile);
-		if (!file.is_open()) {
-			cerr << "Error: Could not open file " << nodeFile << endl;
-			return nodeFile;
-		}
+    string leftFile, rightFile;
+    int data;
 
-		string line, leftFile, rightFile;
-		int data;
-		while (getline(file, line)) {
-			if (line.find("data=") == 0) data = stoi(line.substr(5));
-			if (line.find("Left=") == 0) leftFile = line.substr(5);
-			if (line.find("Right=") == 0) rightFile = line.substr(6);
-		}
-		file.close();
+    // Read current node data
+    ifstream node(nodeFile);
+    if (!node.is_open()) {
+        cerr << "Error: Could not open file " << nodeFile << endl;
+        return nodeFile;
+    }
+    string line;
+    while (getline(node, line)) {
+        if (line.find("data=") == 0) data = stoi(line.substr(5));
+        if (line.find("Left=") == 0) leftFile = line.substr(5);
+        if (line.find("Right=") == 0) rightFile = line.substr(6);
+    }
+    node.close();
 
-		// Step 2: Traverse to the correct node
-		if (key < data) {
-			leftFile = deleteHelper(leftFile, key);
-		}
-		else if (key > data) {
-			rightFile = deleteHelper(rightFile, key);
-		}
-		else {
-			// Node to be deleted found
-			if (leftFile == "null" && rightFile == "null") {
-				// Case 1: No children
-				remove(nodeFile.c_str());
-				return "null";
-			}
-			else if (leftFile == "null") {
-				// Case 2: One child (right)
-				remove(nodeFile.c_str());
-				return rightFile;
-			}
-			else if (rightFile == "null") {
-				// Case 2: One child (left)
-				remove(nodeFile.c_str());
-				return leftFile;
-			}
-			else {
-				// Case 3: Two children
-				// Find the in-order predecessor
-				string predecessorFile = findMax(leftFile);
-				int predecessorData = getNodeData(predecessorFile);
+    // Perform BST delete
+    if (key < data) {
+        leftFile = deleteHelper(leftFile, key);
+    } else if (key > data) {
+        rightFile = deleteHelper(rightFile, key);
+    } else {
+        // Node with one or no child
+        if (leftFile == "null" || rightFile == "null") {
+            string temp = (leftFile != "null") ? leftFile : rightFile;
+            remove(nodeFile.c_str()); // Delete the file
+            return temp;
+        }
 
-				// Copy predecessor's data to current node
-				updateNodeData(nodeFile, predecessorData, leftFile, rightFile, fileHeight(nodeFile));
+        // Node with two children: Use inorder predecessor
+        string maxNodeFile = findMax(leftFile);
+        int maxNodeData = getNodeData(maxNodeFile);
+        deleteHelper(leftFile, maxNodeData);
+		renameFile(nodeFile, maxNodeFile);
+		updateNodeData(maxNodeFile, maxNodeData, leftFile, rightFile,fileHeight(maxNodeFile));
+		return maxNodeFile;
+    }
 
-				// Delete the predecessor file
-				leftFile = deleteHelper(leftFile, predecessorData);
-			}
-		}
+    // Update the current node with new links
+    updateNodeData(nodeFile, data, leftFile, rightFile, fileHeight(nodeFile));
+    updateNodeHeight(nodeFile, max(fileHeight(leftFile), fileHeight(rightFile)) + 1);
 
-		// Step 3: Update height and balance factor, then balance the tree
-		updateNodeHeight(nodeFile, max(fileHeight(leftFile), fileHeight(rightFile)) + 1);
-		int balance = fileBalanceFactor(nodeFile);
+    // Balance the node
+    int balance = fileBalanceFactor(nodeFile);
 
-		if (balance > 1) {
-			if (fileBalanceFactor(leftFile) >= 0) {
-				return rightRotate(nodeFile); // Left-Left case
-			}
-			else {
-				leftFile = leftRotate(leftFile);
-				updateNodeData(nodeFile, data, leftFile, rightFile, fileHeight(nodeFile));
-				return rightRotate(nodeFile); // Left-Right case
-			}
-		}
-		else if (balance < -1) {
-			if (fileBalanceFactor(rightFile) <= 0) {
-				return leftRotate(nodeFile); // Right-Right case
-			}
-			else {
-				rightFile = rightRotate(rightFile);
-				updateNodeData(nodeFile, data, leftFile, rightFile, fileHeight(nodeFile));
-				return leftRotate(nodeFile); // Right-Left case
-			}
-		}
+    // Left Heavy
+    if (balance > 1) {
+        if (fileBalanceFactor(leftFile) >= 0) {
+            return rightRotate(nodeFile); // Left-Left case
+        } else {
+            leftFile = leftRotate(leftFile); // Left-Right case
+            return rightRotate(nodeFile);
+        }
+    }
+    // Right Heavy
+    if (balance < -1) {
+        if (fileBalanceFactor(rightFile) <= 0) {
+            return leftRotate(nodeFile); // Right-Right case
+        } else {
+            rightFile = rightRotate(rightFile); // Right-Left case
+            return leftRotate(nodeFile);
+        }
+    }
 
-		return nodeFile;
-	}
+    return nodeFile;
+}
+
+// Public method to delete a key
+void deleteKey(T key) {
+    rootFile = deleteHelper(rootFile, key);
+    cout << "Deleted " << key << ". Updated root file: " << rootFile << endl;
+}
 
 	// Helper to find the maximum value in a subtree
 	string findMax(string nodeFile) {
