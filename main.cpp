@@ -1,128 +1,149 @@
 #include <iostream>
-using namespace std;
+#include <fstream>
+#include <sstream>
+#include <string>
 #include "Hashes.h"
 #include "AVL.h"
 #include "BTree.h"
 #include "RBTree.h"
-#include"string";
-#include"menu.h"
+#include "menu.h"
+#include <vector>
 
-int main()
-{
+using namespace std;
 
-	//string csvFile, column, treeType;
-	//char** columns = nullptr;  // Pointer for storing column names
-	//int choice, numColumns;
+int main() {
+	string csvFile, column, treeType;
+	char** columns = nullptr;  // Pointer for storing column names
+	int choice, numColumns;
 
-	//// Step 1: Initialization
-	//displayInitializationHeader();
-	//cout << "Enter the CSV file name: ";
-	//cin >> csvFile;
+	// Step 1: Initialization
+	displayInitializationHeader();
+	cout << "Enter the CSV file name: ";
+	cin >> csvFile;
 
-	//// Read the CSV file and display columns
-	//if (!readCSVFileAndDisplayColumns(csvFile, columns, numColumns)) {
-	//	return 1; // Exit if CSV cannot be read
-	//}
+	// Read the CSV file and display columns
+	if (!readCSVFileAndDisplayColumns(csvFile, columns, numColumns)) {
+		return 1; // Exit if CSV cannot be read
+	}
 
-	//// Ask user to select a column
-	//cout << "\nSelect a column to use as the tree key (enter number): ";
-	//int columnChoice;
-	//cin >> columnChoice;
+	// Ask user to select a column
+	cout << "\nSelect a column to use as the tree key (enter number): ";
+	int columnChoice;
+	cin >> columnChoice;
 
-	//if (columnChoice < 1 || columnChoice > numColumns) {
-	//	cout << "\nInvalid column choice. Exiting...\n";
-	//	freeColumns(columns, numColumns);  // Free the memory before exiting
-	//	return 1;
-	//}
-	//column = columns[columnChoice - 1];  // Set the selected column
+	if (columnChoice < 1 || columnChoice > numColumns) {
+		cout << "\nInvalid column choice. Exiting...\n";
+		freeColumns(columns, numColumns);  // Free the memory before exiting
+		return 1;
+	}
+	column = columns[columnChoice - 1];  // Set the selected column
 
-	//cout << "\nChoose tree type:\n";
-	//cout << "1. AVL\n2. B\n3. Red-Black\n";
-	//cout << "Select tree type (enter number): ";
-	//cin >> treeType;
+	cout << "\nChoose tree type:\n";
+	cout << "1. AVL\n2. B\n3. Red-Black\n";
+	cout << "Select tree type (enter number): ";
+	cin >> treeType;
 
-	//cout << "\nRepository initialized successfully with tree type " << treeType << " using column " << column << ".\n";
+	cout << "\nRepository initialized successfully with tree type " << treeType << " using column " << column << ".\n";
 
-	//// Step 2: Menu Loop
-	//do {
-	//	cin.ignore();
-	//	displayMenu();
-	//	cin >> choice;
+	// Initialize the AVL tree
+	AVLTree<string> avlTree;
 
-	//	switch (choice) {
-	//	case 1:
-	//		commit();
-	//		break;
+	// Open the CSV file and start reading rows
+	ifstream file(csvFile);
+	if (!file.is_open()) {
+		cout << "Error: Unable to open CSV file.\n";
+		freeColumns(columns, numColumns);
+		return 1;
+	}
 
-	//	case 2:
-	//		createBranch();
-	//		break;
+	string header;
+	getline(file, header);  // Skip the header row
+	string row;
+	int rowIndex = 0;
 
-	//	case 3:
-	//		switchBranch();
-	//		break;
+	while (getline(file, row)) {
+		stringstream ss(row);
+		string columnValue;
+		vector<string> rowData;
 
-	//	case 4:
-	//		viewCommitHistory();
-	//		break;
+		// Split the row into columns
+		string cell;
+		while (getline(ss, cell, ',')) {
+			rowData.push_back(cell);
+		}
 
-	//	case 5:
-	//		displayTreeStructure();
-	//		break;
+		// Get the value of the selected column
+		if (columnChoice - 1 >= 0 && columnChoice - 1 < static_cast<int>(rowData.size())) {
+			columnValue = rowData[columnChoice - 1];
+		}
+		else {
+			cout << "Error: Missing value in selected column for row " << rowIndex << ". Skipping.\n";
+			rowIndex++;
+			continue;
+		}
 
-	//	case 6:
-	//		mergeBranches();
-	//		break;
+		// Generate hash for the key
+		string keyData = columnValue + "_" + to_string(rowIndex);
+		cout << "Key: " << keyData << endl;
+		string hashKey = sha256(keyData);
 
-	//	case 7:
-	//		deleteBranch();
-	//		break;
+		cout << "Hash: " << hashKey << endl;
+		cout << "Row: " << row << endl;
+		cout << "----------------------------------\n";
+		//avlTree.insert(hashKey, row);
 
-	//	case 8:
-	//		saveRepository();
-	//		break;
+		rowIndex++;
+	}
 
-	//	case 9:
-	//		loadRepository();
-	//		break;
+	file.close();  // Close the file
 
-	//	case 10:
-	//		detectCorruption();
-	//		break;
+	// Step 2: Menu Loop
+	do {
+		cin.ignore();
+		displayMenu();
+		cin >> choice;
 
-	//	case 11:
-	//		cout << "\nExiting GitLite. Goodbye!\n";
-	//		break;
+		switch (choice) {
+		case 1:
+			commit();
+			break;
+		case 2:
+			createBranch();
+			break;
+		case 3:
+			switchBranch();
+			break;
+		case 4:
+			viewCommitHistory();
+			break;
+		case 5:
+			displayTreeStructure();
+			break;
+		case 6:
+			mergeBranches();
+			break;
+		case 7:
+			deleteBranch();
+			break;
+		case 8:
+			saveRepository();
+			break;
+		case 9:
+			loadRepository();
+			break;
+		case 10:
+			detectCorruption();
+			break;
+		case 11:
+			cout << "\nExiting GitLite. Goodbye!\n";
+			break;
+		default:
+			cout << "\nInvalid choice. Please try again.\n";
+		}
+	} while (choice != 11);
 
-	//	default:
-	//		cout << "\nInvalid choice. Please try again.\n";
-	//	}
-	//} while (choice != 11);
-
-	//// Free the dynamically allocated memory before exiting
-	//freeColumns(columns, numColumns);
-	AVLTree<int> tree;
-
-	tree.insert(40);
-	tree.insert(59);
-	tree.insert(19);
-	tree.insert(30);
-	tree.insert(10);
-	tree.insert(27);
-	tree.insert(20);
-	tree.insert(25);
-	tree.insert(31);
-	tree.insert(34);
-	tree.insert(11);
-	tree.deleteKey(31);
-	//tree.deleteKey(31);
-	//tree.deleteKey(59);
-	cout << "In-order traversal: ";
-	tree.inorderFile();
-
-	cout << "Search for 30: " << (tree.searchFile(30) ? "Found" : "Not Found") << endl;
-	cout << "Search for 50: " << (tree.searchFile(50) ? "Found" : "Not Found") << endl;
-
+	// Free the dynamically allocated memory before exiting
+	freeColumns(columns, numColumns);
 
 	return 0;
 }
