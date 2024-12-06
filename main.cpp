@@ -128,10 +128,10 @@ int main()
 	rb.insert(10);
 	rb.insert(27);
 	rb.insert(20);
-	//rb.insert(25);
-	//rb.insert(31);
-	//rb.insert(34);
-	//rb.insert(11);
+	rb.insert(25);
+	rb.insert(31);
+	rb.insert(34);
+	rb.insert(11);
 	rb.inorder();
 	return 0;
 }

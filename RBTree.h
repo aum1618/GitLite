@@ -241,61 +241,83 @@ public:
         if (key < data) {
             cout << "Going left from " << h << endl;
             leftFile = insertHelper(leftFile, key);
-            //updateNodeData(h, data, leftFile, rightFile, isRedVal);
         }
         else if (key > data) {
             cout << "Going right from " << h << endl;
             rightFile = insertHelper(rightFile, key);
-            //updateNodeData(h, data, leftFile, rightFile, isRedVal);
            
         }
         else return h;
         
-        ifstream newhFile(h);
-        string newline;
-        bool newisRedVal;
-        while (getline(newhFile, newline)) {
-            
-            if (newline.find("isRed=") == 0) newisRedVal = (newline.substr(6) == "1");
-        }
-        newhFile.close();
-        updateNodeData(h, data, leftFile, rightFile, newisRedVal);
+        updateNodeData(h, data, leftFile, rightFile, isRedVal);
 
         // Fix Red-Black tree violations
        
-        if (isRed(h) && isRed(leftFile))
+        if (isRed(leftFile)&&isRed(getLeftFile(leftFile)))
         {
-            if (isRed(findSibling(h)))
+            if (isRed(rightFile))
             {
-                updateColor(findSibling(h), false);
-                updateColor(h,  false);
-                updateColor(findParent(h), true);
+                updateColor(rightFile, false);
+                updateColor(h, true);
+                updateColor(leftFile,false);
             }
             else
             {
-                h = rotateRight(findParent(h));
+                h = rotateRight(h);
                 
                 updateColor(h, false);
                 updateColor(getRightFile(h), true);
             }
         }
-        if (isRed(rightFile) && isRed(h))
+        if (isRed(rightFile) &&isRed(getRightFile(rightFile)))
         {
-            if (isRed(findSibling(h)))
+            if (isRed(leftFile))
             {
-                updateColor(findSibling(h), false);
-                updateColor(h, false);
-                updateColor(findParent(h), true);
+                updateColor(leftFile, false);
+                updateColor(h, true);
+                updateColor(rightFile, false);
             }
             else
             {
-                h = rotateLeft(findParent(h));
+                h = rotateLeft(h);
                 updateColor(h, false);
                 updateColor(getLeftFile(h), true);
             }
         }
-       
-
+        if (isRed(leftFile) && isRed(getRightFile(leftFile)))
+        {
+            if (isRed(rightFile))
+            {
+                updateColor(rightFile, false);
+                updateColor(h, true);
+                updateColor(leftFile, false);
+            }
+            else
+            {
+                leftFile=rotateLeft(leftFile);
+                updateNodeData(h, data, leftFile, rightFile, isRedVal);
+                h = rotateRight(h);
+                updateColor(h, false);
+                updateColor(getRightFile(h), true);
+            }
+        }
+        if (isRed(rightFile) && isRed(getLeftFile(rightFile)))
+        {
+            if (isRed(leftFile))
+            {
+                updateColor(leftFile, false);
+                updateColor(h, true);
+                updateColor(rightFile, false);
+            }
+            else
+            {
+                rightFile = rotateRight(rightFile);
+                updateNodeData(h, data, leftFile, rightFile, isRedVal);
+                h = rotateLeft(h);
+                updateColor(h, false);
+                updateColor(getLeftFile(h), true);
+            }
+        }
         return h;
     }
 
@@ -495,6 +517,19 @@ public:
         else {
             return leftGP;
         }
+    }
+
+    string findGrandParent(string nodeFile) {
+        if (nodeFile == "null" || nodeFile == rootFile) {
+            return "null"; // Root or null node has no grandparent
+        }
+
+        string parent = findParent(nodeFile);
+        if (parent == "null" || parent == rootFile) {
+            return "null"; // No grandparent if no parent or parent is root
+        }
+
+        return findParent(parent); // Return parent's parent (grandparent)
     }
 
     void updateColor(string filename, bool newColor) {

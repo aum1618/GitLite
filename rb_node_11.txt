@@ -1,4 +1,4 @@
 data=11
 Left=null
-Right=rb_node_19.txt
-isRed=0
+Right=null
+isRed=1

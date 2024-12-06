@@ -1,4 +1,4 @@
 data=10
 Left=null
-Right=null
+Right=rb_node_11.txt
 isRed=0

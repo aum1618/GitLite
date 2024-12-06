@@ -1,4 +1,4 @@
 data=27
-Left=rb_node_20.txt
-Right=rb_node_30.txt
+Left=rb_node_19.txt
+Right=rb_node_40.txt
 isRed=0
