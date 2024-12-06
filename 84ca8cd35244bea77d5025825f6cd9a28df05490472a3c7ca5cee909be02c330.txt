@@ -1,0 +1,5 @@
+data=andrEw waTtS,28,Female,O+,Diabetes,2020-11-18,Kevin Wells,"Hernandez Rogers and Vang,",Medicare,37909.78240987528,450,Elective,2020-12-18,Ibuprofen,Abnormal
+hash=84ca8cd35244bea77d5025825f6cd9a28df05490472a3c7ca5cee909be02c330
+Left=68a1aa77574d7842b55ceab4e9abbe7d28f05a874b139d838596db512cd404a6.txt
+Right=a8d2f9d3bc1fa0acbf782d7ca740cadd6ebb48315ffa407f088fb3d45674ef2a.txt
+Height=3

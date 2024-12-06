@@ -46,7 +46,7 @@ int main() {
 	cout << "\nRepository initialized successfully with tree type " << treeType << " using column " << column << ".\n";
 
 	// Initialize the AVL tree
-	AVLTree<string> avlTree;
+	AVLTree avlTree;
 
 	// Open the CSV file and start reading rows
 	ifstream file(csvFile);
@@ -90,7 +90,7 @@ int main() {
 		cout << "Hash: " << hashKey << endl;
 		cout << "Row: " << row << endl;
 		cout << "----------------------------------\n";
-		//avlTree.insert(hashKey, row);
+		avlTree.insert(row, hashKey);
 
 		rowIndex++;
 	}

@@ -1,0 +1,5 @@
+data=rObeRt bAuer,68,Female,AB+,Asthma,2020-05-22,Theresa Freeman,Rivera-Gutierrez,UnitedHealthcare,33207.706633729606,309,Urgent,2020-06-19,Lipitor,Normal
+hash=ebf2671249f832d32d238c460165278250df6aa1ed3fea299213ee15febe79c7
+Left=null
+Right=ff20acb17699e078f5d523eeaa3a6680799761ffd80c60c8c07ce551fe5d4b21.txt
+Height=2

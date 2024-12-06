@@ -1,0 +1,5 @@
+data=EMILY JOHNSOn,36,Male,A+,Asthma,2023-12-20,Taylor Newton,Nunez-Humphrey,UnitedHealthcare,48145.11095104189,389,Urgent,2023-12-24,Ibuprofen,Normal
+hash=a8d2f9d3bc1fa0acbf782d7ca740cadd6ebb48315ffa407f088fb3d45674ef2a
+Left=null
+Right=null
+Height=1

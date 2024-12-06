@@ -7,7 +7,7 @@ using namespace std;
 
 
 // Template class representing the AVL tree
-template <typename T> class AVLTree {
+class AVLTree {
 public:
 	string rootFile;
 
@@ -83,7 +83,7 @@ public:
 		outFile.close();
 	}
 
-	void updateNodeData(string filename, int data, string leftFile, string rightFile, int height) {
+	void updateNodeData(string filename, string hash, string data, string leftFile, string rightFile, int height) {
 		ofstream file(filename);
 		if (!file.is_open()) {
 			cerr << "Error: Could not open file " << filename << endl;
@@ -91,6 +91,7 @@ public:
 		}
 
 		file << "data=" << data << endl;
+		file << "hash=" << hash << endl;
 		file << "Left=" << leftFile << endl;
 		file << "Right=" << rightFile << endl;
 		file << "Height=" << height << endl; // height is recalculated later after rotation
@@ -106,10 +107,14 @@ public:
 
 		string line;
 		string yLeftFile, yRightFile;
-		int yData;
+		string yhashdata;
+		string yData;
 		while (getline(y, line)) {
 			if (line.find("data=") == 0) {
-				yData = stoi(line.substr(5));
+				yData = line.substr(5);
+			}
+			if (line.find("hash=") == 0) {
+				yhashdata = line.substr(5);
 			}
 			if (line.find("Left=") == 0) {
 				yLeftFile = line.substr(5);
@@ -129,10 +134,14 @@ public:
 		}
 
 		string xRightFile, xLeftFile;
-		int xData;
+		string xhashdata;
+		string xData;
 		while (getline(x, line)) {
 			if (line.find("data=") == 0) {
-				xData = stoi(line.substr(5));
+				xData = line.substr(5);
+			}
+			if (line.find("hash=") == 0) {
+				xhashdata = line.substr(5);
 			}
 			if (line.find("Right=") == 0) {
 				xRightFile = line.substr(6);
@@ -146,8 +155,8 @@ public:
 
 
 		// Step 3: Perform the right rotation by updating files
-		updateNodeData(yFile, yData, xRightFile, yRightFile, fileHeight(yFile));
-		updateNodeData(xFile, xData, xLeftFile, yFile, fileHeight(xFile));
+		updateNodeData(yFile, yhashdata, yData, xRightFile, yRightFile, fileHeight(yFile));
+		updateNodeData(xFile, xhashdata, xData, xLeftFile, yFile, fileHeight(xFile));
 
 		// Step 4: Update the heights of the nodes
 		updateNodeHeight(yFile, max(fileHeight(xRightFile), fileHeight(yRightFile)) + 1);
@@ -166,10 +175,14 @@ public:
 
 		string line;
 		string xLeftFile, xRightFile;
-		int xData;
+		string xhashdata;
+		string xData;
 		while (getline(x, line)) {
 			if (line.find("data=") == 0) {
-				xData = stoi(line.substr(5));
+				xData = line.substr(5);
+			}
+			if (line.find("hash=") == 0) {
+				xhashdata = line.substr(5);
 			}
 			if (line.find("Left=") == 0) {
 				xLeftFile = line.substr(5);
@@ -189,10 +202,14 @@ public:
 		}
 
 		string yRightFile, yLeftFile;
-		int yData;
+		string yhashdata;
+		string yData;
 		while (getline(y, line)) {
 			if (line.find("data=") == 0) {
-				yData = stoi(line.substr(5));
+				yData = line.substr(5);
+			}
+			if (line.find("hash=") == 0) {
+				yhashdata = line.substr(5);
 			}
 			if (line.find("Right=") == 0) {
 				yRightFile = line.substr(6);
@@ -204,8 +221,8 @@ public:
 		y.close();
 
 		// Step 3: Perform the left rotation by updating files
-		updateNodeData(yFile, yData, xFile, yRightFile, fileHeight(yFile));
-		updateNodeData(xFile, xData, xLeftFile, yLeftFile, fileHeight(xFile));
+		updateNodeData(yFile,yhashdata, yData, xFile, yRightFile, fileHeight(yFile));
+		updateNodeData(xFile, xhashdata, xData, xLeftFile, yLeftFile, fileHeight(xFile));
 
 		// Step 4: Update the heights of the nodes
 		updateNodeHeight(xFile, max(fileHeight(xLeftFile), fileHeight(yLeftFile)) + 1);
@@ -215,20 +232,19 @@ public:
 	}
 
 
-	void insert(T key) {
-		string newRootFile = insertHelper(rootFile, key);
-		cout << "old rootfile is : " << rootFile << "new root file is : " << newRootFile << endl;
-		cout << endl;
+	void insert(string row, string hash) {
+		string newRootFile = insertHelper(rootFile, row, hash);
+		cout << "Old root file: " << rootFile << ", New root file: " << newRootFile << endl;
 		rootFile = newRootFile;
 	}
 
+	string insertHelper(string nodeFile, string row, string hash) {
+		cout << "Inserting row with hash " << hash << " into " << nodeFile << endl;
 
-
-	string insertHelper(string nodeFile, T key) {
-		cout << "Inserting " << key << " into " << nodeFile << endl;
 		if (nodeFile == "null") {
-			string newFileName = "node_" + to_string(key) + ".txt";
-			string content = "data=" + to_string(key) + "\n";
+			string newFileName = hash + ".txt";
+			string content = "data=" + row + "\n";
+			content += "hash=" + hash + "\n";
 			content += "Left=null\n";
 			content += "Right=null\n";
 			content += "Height=1\n";
@@ -242,12 +258,13 @@ public:
 			return nodeFile;
 		}
 
-		string line;
-		string leftFile, rightFile;
-		int data;
+		string line, leftFile, rightFile, data, existingHash;
 		while (getline(node, line)) {
 			if (line.find("data=") == 0) {
-				data = stoi(line.substr(5));
+				data = line.substr(5);
+			}
+			if (line.find("hash=") == 0) {
+				existingHash = line.substr(5);
 			}
 			if (line.find("Left=") == 0) {
 				leftFile = line.substr(5);
@@ -258,73 +275,55 @@ public:
 		}
 		node.close();
 
-		if (key < data) {
-			leftFile = insertHelper(leftFile, key);
-			cout << "returned value: " << leftFile << "node file: "<<nodeFile<< endl;
+		if (hash < existingHash) {
+			leftFile = insertHelper(leftFile, row, hash);
 		}
-		else if (key > data) {
-			rightFile = insertHelper(rightFile, key);
-			cout << "returned value: " << rightFile << "node file: " << nodeFile << endl;
+		else if (hash > existingHash) {
+			rightFile = insertHelper(rightFile, row, hash);
+		}
 
-		}
-		int height = fileHeight(nodeFile);
-		cout << "Height of " << nodeFile << " is " << height << endl;
-		updateNodeData(nodeFile, data, leftFile, rightFile, height);
+		updateNodeData(nodeFile, existingHash, data, leftFile, rightFile, fileHeight(nodeFile));
 		updateNodeHeight(nodeFile, max(fileHeight(leftFile), fileHeight(rightFile)) + 1);
-		cout << "New Height of " << nodeFile << " is now " << fileHeight(nodeFile) << endl;
+
 		int balance = fileBalanceFactor(nodeFile);
-		cout << "Balance factor of " << nodeFile << " is " << balance << endl;
-		if (balance > 1) { // Left-heavy
-			ifstream leftChild(leftFile);
-			int leftChildData;
-			if (leftChild.is_open()) {
-				string line;
-				while (getline(leftChild, line)) {
-					if (line.find("data=") == 0) {
-						leftChildData = stoi(line.substr(5));
-						break;
-					}
-				}
-				leftChild.close();
-			}
-			if (key < leftChildData) {
-				cout << "Right rotate on " << nodeFile << endl;
-				return rightRotate(nodeFile); // Left-Left Case
+
+		if (balance > 1) {
+			if (hash < getNodeHash(leftFile)) {
+				return rightRotate(nodeFile);
 			}
 			else {
-				cout << "Left-Right rotate on " << leftFile << endl;
-				string newFile=leftRotate(leftFile);
-				int nodeHeight = fileHeight(nodeFile);
-				updateNodeData(nodeFile, data, newFile, rightFile,nodeHeight);
-				return rightRotate(nodeFile); // Left-Right Case
+				leftFile = leftRotate(leftFile);
+				return rightRotate(nodeFile);
 			}
 		}
-		else if (balance < -1) { // Right-heavy
-			ifstream rightChild(rightFile);
-			int rightChildData;
-			if (rightChild.is_open()) {
-				string line;
-				while (getline(rightChild, line)) {
-					if (line.find("data=") == 0) {
-						rightChildData = stoi(line.substr(5));
-						break;
-					}
-				}
-				rightChild.close();
-			}
-			if (key > rightChildData) {
-				cout << "Left rotate on " << nodeFile << endl;
-				return leftRotate(nodeFile); // Right-Right Case
+		else if (balance < -1) {
+			if (hash > getNodeHash(rightFile)) {
+				return leftRotate(nodeFile);
 			}
 			else {
-				cout << "Right-Left rotate on " << rightFile << endl;
-				string newFile = rightRotate(rightFile);
-				int nodeHeight = fileHeight(nodeFile);
-				updateNodeData(nodeFile, data, leftFile, newFile,nodeHeight);
-				return leftRotate(nodeFile); // Right-Left Case
+				rightFile = rightRotate(rightFile);
+				return leftRotate(nodeFile);
 			}
 		}
-			return nodeFile;
+
+		return nodeFile;
+	}
+	string getNodeHash(string filename) {
+		if (filename == "null") return "";
+		ifstream file(filename);
+		if (!file.is_open()) {
+			cerr << "Error: Could not open file " << filename << endl;
+			return "";
+		}
+		string line, hash;
+		while (getline(file, line)) {
+			if (line.find("hash=") == 0) {
+				hash = line.substr(5);
+				break;
+			}
+		}
+		file.close();
+		return hash;
 	}
 
 
@@ -347,10 +346,10 @@ public:
 		}
 		string line;
 		string leftFile, rightFile;
-		int data;
+		string data;
 		while (getline(file, line)) {
 			if (line.find("data=") == 0) {
-				data = stoi(line.substr(5));
+				data = line.substr(5);
 			}
 			if (line.find("Left=") == 0) {
 				leftFile = line.substr(5);
@@ -368,11 +367,11 @@ public:
 
 
 
-	bool searchFile(T key) {
+	bool searchFile(string key) {
 		return searchHelper(rootFile, key);
 	}
 
-	bool searchHelper(string filename, T key) {
+	bool searchHelper(string filename, string key) {
 		if (filename == "null")
 			return false;
 		ifstream file(filename);
@@ -382,10 +381,10 @@ public:
 		}
 		string line;
 		string leftFile, rightFile;
-		int data;
+		string data;
 		while (getline(file, line)) {
 			if (line.find("data=") == 0) {
-				data = stoi(line.substr(5));
+				data = line.substr(5);
 			}
 			if (line.find("Left=") == 0) {
 				leftFile = line.substr(5);
@@ -406,11 +405,11 @@ public:
 	//Deletion
 	// Add this method to the AVLTree class
 
-string deleteHelper(string nodeFile, T key) {
+string deleteHelper(string nodeFile, string key) {
     if (nodeFile == "null") return "null";
 
     string leftFile, rightFile;
-    int data;
+    string data;
 
     // Read current node data
     ifstream node(nodeFile);
@@ -420,7 +419,7 @@ string deleteHelper(string nodeFile, T key) {
     }
     string line;
     while (getline(node, line)) {
-        if (line.find("data=") == 0) data = stoi(line.substr(5));
+        if (line.find("data=") == 0) data = line.substr(5);
         if (line.find("Left=") == 0) leftFile = line.substr(5);
         if (line.find("Right=") == 0) rightFile = line.substr(6);
     }
@@ -441,15 +440,15 @@ string deleteHelper(string nodeFile, T key) {
 
         // Node with two children: Use inorder predecessor
         string maxNodeFile = findMax(leftFile);
-        int maxNodeData = getNodeData(maxNodeFile);
+        string maxNodeData = getNodeData(maxNodeFile);
         deleteHelper(leftFile, maxNodeData);
 		renameFile(nodeFile, maxNodeFile);
-		updateNodeData(maxNodeFile, maxNodeData, leftFile, rightFile,fileHeight(maxNodeFile));
+		updateNodeData(maxNodeFile, getNodeHash(maxNodeFile),maxNodeData, leftFile, rightFile,fileHeight(maxNodeFile));
 		return maxNodeFile;
     }
 
     // Update the current node with new links
-    updateNodeData(nodeFile, data, leftFile, rightFile, fileHeight(nodeFile));
+    updateNodeData(nodeFile, getNodeHash(nodeFile), data, leftFile, rightFile, fileHeight(nodeFile));
     updateNodeHeight(nodeFile, max(fileHeight(leftFile), fileHeight(rightFile)) + 1);
 
     // Balance the node
@@ -478,7 +477,7 @@ string deleteHelper(string nodeFile, T key) {
 }
 
 // Public method to delete a key
-void deleteKey(T key) {
+void deleteKey(string key) {
     rootFile = deleteHelper(rootFile, key);
     cout << "Deleted " << key << ". Updated root file: " << rootFile << endl;
 }
@@ -504,17 +503,17 @@ void deleteKey(T key) {
 	}
 
 	// Helper to get node data from a file
-	int getNodeData(string nodeFile) {
+	string getNodeData(string nodeFile) {
 		ifstream file(nodeFile);
 		if (!file.is_open()) {
 			cerr << "Error: Could not open file " << nodeFile << endl;
-			return -1; // Error case
+			return 0; // Error case
 		}
 		string line;
-		int data;
+		string data;
 		while (getline(file, line)) {
 			if (line.find("data=") == 0) {
-				data = stoi(line.substr(5));
+				data = line.substr(5);
 				break;
 			}
 		}

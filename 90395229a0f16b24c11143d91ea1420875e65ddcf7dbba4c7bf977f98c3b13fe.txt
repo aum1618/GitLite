@@ -1,0 +1,5 @@
+data=mIchElLe daniELs,72,Male,O+,Cancer,2020-04-19,John Duncan,Schaefer-Porter,Medicare,12576.795609050234,394,Urgent,2020-04-22,Paracetamol,Normal
+hash=90395229a0f16b24c11143d91ea1420875e65ddcf7dbba4c7bf977f98c3b13fe
+Left=null
+Right=null
+Height=1

@@ -1,0 +1,5 @@
+data=DaNnY sMitH,76,Female,A-,Obesity,2022-09-22,Tiffany Mitchell,Cook PLC,Aetna,27955.096078842456,205,Emergency,2022-10-07,Aspirin,Normal
+hash=68a1aa77574d7842b55ceab4e9abbe7d28f05a874b139d838596db512cd404a6
+Left=66c893e8cbfd2c3a7adc4ffaea0066cc6ccb387c5d21ef09ad25c61047b1ac71.txt
+Right=ff20acb17699e078f5d523eeaa3a6680799761ffd80c60c8c07ce551fe5d4b21.txt
+Height=3

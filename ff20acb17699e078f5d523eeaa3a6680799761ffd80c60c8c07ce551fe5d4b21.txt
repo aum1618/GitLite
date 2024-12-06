@@ -1,0 +1,5 @@
+data=edwArD EDWaRDs,21,Female,AB-,Diabetes,2020-11-03,Kelly Olson,Group Middleton,Medicare,19580.87234486093,389,Emergency,2020-11-15,Paracetamol,Inconclusive
+hash=ff20acb17699e078f5d523eeaa3a6680799761ffd80c60c8c07ce551fe5d4b21
+Left=d97bde65c74dc246005483a8ae9a963c7871da08ffb887a38e3242fdd63b501d.txt
+Right=null
+Height=2

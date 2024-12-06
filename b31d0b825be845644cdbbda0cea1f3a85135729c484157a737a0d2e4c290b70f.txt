@@ -1,0 +1,5 @@
+data=ChRISTopher BerG,58,Female,AB-,Cancer,2021-05-23,Heather Day,Padilla-Walker,UnitedHealthcare,19784.63106221073,249,Elective,2021-06-22,Paracetamol,Inconclusive
+hash=b31d0b825be845644cdbbda0cea1f3a85135729c484157a737a0d2e4c290b70f
+Left=90395229a0f16b24c11143d91ea1420875e65ddcf7dbba4c7bf977f98c3b13fe.txt
+Right=d97bde65c74dc246005483a8ae9a963c7871da08ffb887a38e3242fdd63b501d.txt
+Height=3

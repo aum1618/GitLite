@@ -1,0 +1,5 @@
+data=LesLie TErRy,62,Male,A+,Obesity,2019-08-20,Samantha Davies,Kim Inc,Medicare,33643.327286577885,265,Emergency,2019-08-26,Ibuprofen,Inconclusive
+hash=a94f81270ed0bc386330004c52261f8b75594b8ac3229fb99f40293658a1b4c8
+Left=a2286579aa7da694a7845e1e738dd24f786b34594f300dee04e0cf402c100632.txt
+Right=d97bde65c74dc246005483a8ae9a963c7871da08ffb887a38e3242fdd63b501d.txt
+Height=3

@@ -84,7 +84,7 @@ void detectCorruption() {
 // Function to display the menu in a beautiful format
 void displayMenu() {
     // Clear screen for a fresh look (works for most terminals)
-    cout << "\033[2J\033[H"; // ANSI escape sequence to clear screen
+    //cout << "\033[2J\033[H"; // ANSI escape sequence to clear screen
 
     cout << "\033[1;32m";
     cout << "====================================\n";
