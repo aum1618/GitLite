@@ -35,62 +35,7 @@ class BTree {
 private:
 	BTreeNode<T, ORDER>* root; // Pointer to root node
 
-	// Function to split a full child node
-	void splitChild(BTreeNode<T, ORDER>* x, int i) {
-		BTreeNode<T, ORDER>* y = x->children[i];
-		BTreeNode<T, ORDER>* z = new BTreeNode<T, ORDER>(y->leaf);
-		z->n = ORDER / 2 - 1;
-
-		for (int j = 0; j < ORDER / 2 - 1; j++)
-			z->keys[j] = y->keys[j + ORDER / 2];
-
-		if (!y->leaf) {
-			for (int j = 0; j < ORDER / 2; j++)
-				z->children[j] = y->children[j + ORDER / 2];
-		}
-
-		y->n = ORDER / 2 - 1;
-
-		for (int j = x->n; j >= i + 1; j--)
-			x->children[j + 1] = x->children[j];
-
-		x->children[i + 1] = z;
-
-		for (int j = x->n - 1; j >= i; j--)
-			x->keys[j + 1] = x->keys[j];
-
-		x->keys[i] = y->keys[ORDER / 2 - 1];
-		x->n = x->n + 1;
-	}
-
-	// Function to insert a key in a non-full node
-	void insertNonFull(BTreeNode<T, ORDER>* x, T k) {
-		int i = x->n - 1;
-
-		if (x->leaf) {
-			while (i >= 0 && k < x->keys[i]) {
-				x->keys[i + 1] = x->keys[i];
-				i--;
-			}
-
-			x->keys[i + 1] = k;
-			x->n = x->n + 1;
-		}
-		else {
-			while (i >= 0 && k < x->keys[i])
-				i--;
-
-			i++;
-			if (x->children[i]->n == ORDER - 1) {
-				splitChild(x, i);
-
-				if (k > x->keys[i])
-					i++;
-			}
-			insertNonFull(x->children[i], k);
-		}
-	}
-
+	
 	// Function to traverse the tree
 	void traverse(BTreeNode<T, ORDER>* x) {
 		int i;
@@ -290,6 +235,22 @@ public:
 	}
 
 
+
+	
+	// Helper function to generate children filenames string
+	string generateChildrenString(BTreeNode<T, ORDER>* node) {
+		if (node->leaf) return "";
+
+		string children;
+		for (int i = 0; i <= node->n; i++) {
+			if (i > 0) children += ",";
+			children += generateNodeFilename(node->children[i]);
+		}
+		return children;
+	}
+
+	
+
 	void createNode(const string& filename, const string& keys, const string& children = "", bool isLeaf = true) {
 		ofstream file(filename);
 		if (file) {
@@ -304,6 +265,189 @@ public:
 		file.close();
 	}
 
+
+	// Function to split a full child node in a file-based B-tree
+	void splitChild(BTreeNode<T, ORDER>* x, int i) {
+		// Get the child node to be split
+		BTreeNode<T, ORDER>* y = x->children[i];
+
+		// Create a new node
+		BTreeNode<T, ORDER>* z = new BTreeNode<T, ORDER>(y->leaf);
+		z->n = ORDER / 2 - 1;
+
+		// Copy the second half of keys from y to z
+		for (int j = 0; j < ORDER / 2 - 1; j++)
+			z->keys[j] = y->keys[j + ORDER / 2];
+
+		// If not a leaf, copy the second half of children
+		if (!y->leaf) {
+			for (int j = 0; j < ORDER / 2; j++)
+				z->children[j] = y->children[j + ORDER / 2];
+		}
+
+		// Reduce the number of keys in the original node
+		y->n = ORDER / 2 - 1;
+
+		// Shift children in the parent node
+		for (int j = x->n; j >= i + 1; j--)
+			x->children[j + 1] = x->children[j];
+
+		// Insert the new node as a child
+		x->children[i + 1] = z;
+
+		// Shift keys in the parent node
+		for (int j = x->n - 1; j >= i; j--)
+			x->keys[j + 1] = x->keys[j];
+
+		// Move the median key to the parent
+		x->keys[i] = y->keys[ORDER / 2 - 1];
+		x->n = x->n + 1;
+
+		// Update files for the nodes involved in splitting
+		string yFilename = generateNodeFilename(y);
+		string zFilename = generateNodeFilename(z);
+		string xFilename = generateNodeFilename(x);
+
+		// Update y's file
+		createNode(yFilename, generateKeysString(y),
+			!y->leaf ? generateChildrenString(y) : "", y->leaf);
+
+		// Create file for the new node z
+		createNode(zFilename, generateKeysString(z),
+			!z->leaf ? generateChildrenString(z) : "", z->leaf);
+
+		// Update parent node x's file
+		createNode(xFilename, generateKeysString(x),
+			generateChildrenString(x), false);
+	}
+
+	
+
+	// Function to insert a key in a non-full node
+	void insertNonFull(BTreeNode<T, ORDER>* x, T k) {
+		int i = x->n - 1;
+
+		if (x->leaf) {
+			// Insert key in the leaf node
+			while (i >= 0 && k < x->keys[i]) {
+				x->keys[i + 1] = x->keys[i];
+				i--;
+			}
+
+			x->keys[i + 1] = k;
+			x->n = x->n + 1;
+
+			// Update the node's file
+			string filename = generateNodeFilename(x);
+			createNode(filename, generateKeysString(x), "", true);
+		}
+		else {
+			// Find the child to insert into
+			while (i >= 0 && k < x->keys[i])
+				i--;
+			i++;
+
+			// Check if the child is full
+			if (x->children[i]->n == ORDER - 1) {
+				// Split the child
+				splitChild(x, i);
+
+				// Adjust insertion point if necessary
+				if (k > x->keys[i])
+					i++;
+			}
+
+			// Recursively insert into the appropriate child
+			insertNonFull(x->children[i], k);
+
+			// Update the parent node's file
+			string filename = generateNodeFilename(x);
+			createNode(filename, generateKeysString(x),
+				generateChildrenString(x), false);
+		}
+	}
+
+	void insert(T k) {
+		// Case 1: Tree is empty
+		if (root == nullptr) {
+			root = new BTreeNode<T, ORDER>(true);
+			root->keys[0] = k;
+			root->n = 1;
+
+			// Create file for the root node
+			string filename = generateNodeFilename(root);
+			createNode(filename, generateKeysString(root), "", true);
+
+			cout << "Root node created and key inserted: " << k << endl;
+			return;
+		}
+
+		// Case 2: Root is full
+		if (root->n == ORDER - 1) {
+			// Create new root
+			BTreeNode<T, ORDER>* newRoot = new BTreeNode<T, ORDER>(false);
+			newRoot->children[0] = root;
+
+			// Split the old root
+			splitChild(newRoot, 0);
+
+			// Determine which child to insert into
+			int i = (k > newRoot->keys[0]) ? 1 : 0;
+
+			// Insert the key
+			insertNonFull(newRoot->children[i], k);
+
+			// Update root
+			root = newRoot;
+
+			// Create file for new root
+			string newRootFilename = generateNodeFilename(root);
+			createNode(newRootFilename, generateKeysString(root),
+				generateChildrenString(root), false);
+
+			cout << "Root was split. New root created with key: " << root->keys[0] << endl;
+		}
+		else {
+			// Insert into non-full root
+			insertNonFull(root, k);
+
+			// Update root's file
+			string filename = generateNodeFilename(root);
+			createNode(filename, generateKeysString(root),
+				generateChildrenString(root), root->leaf);
+
+			cout << "Key inserted: " << k << endl;
+		}
+	}
+	// Helper functions
+	string generateNodeFilename(BTreeNode<T, ORDER>* node) {
+		string filename = "node_";
+		for (int i = 0; i < node->n; i++) {
+			if (i > 0) filename += "_";
+			filename += to_string(node->keys[i]);
+		}
+		filename += ".txt";
+		return filename;
+	}
+
+	string generateKeysString(BTreeNode<T, ORDER>* node) {
+		string keys;
+		for (int i = 0; i < node->n; i++) {
+			if (i > 0) keys += ",";
+			keys += to_string(node->keys[i]);
+		}
+		return keys;
+	}
+
+
+	void deleteFile(const string& filename) {
+		if (std::remove(filename.c_str()) == 0) {
+			cout << "Node file " << filename << " deleted successfully.\n";
+		}
+		else {
+			cerr << "Error deleting node file: " << filename << endl;
+		}
+	}
 
 	void readNode(const string& filename, string& keys, string& children, bool& isLeaf) {
 		ifstream file(filename);
@@ -327,7 +471,7 @@ public:
 		}
 		file.close();
 	}
-	
+
 
 	void updateNode(const string& filename, const string& newKeys, const string& newChildren = "") {
 		fstream file(filename, ios::in | ios::out);
@@ -352,117 +496,7 @@ public:
 			cerr << "Error updating node file: " << filename << endl;
 		}
 	}
-	
 
-	void deleteNode(const string& filename) {
-		if (remove(filename.c_str()) == 0) {
-			cout << "Node file " << filename << " deleted successfully.\n";
-		}
-		else {
-			cerr << "Error deleting node file: " << filename << endl;
-		}
-	}
-
-
-
-
-	void deleteFile(const std::string& filename) {
-		// Attempt to delete the file
-		if (std::remove(filename.c_str()) == 0) {
-			std::cout << "File deleted successfully: " << filename << std::endl;
-		}
-		else {
-			std::cerr << "Error deleting file: " << filename << ". File may not exist." << std::endl;
-		}
-	}
-
-
-
-	void insert(T k) {
-		if (root == nullptr) {
-			// Create the root node and its file representation
-			root = new BTreeNode<T, ORDER>(true);
-			root->keys[0] = k;
-			root->n = 1;
-
-			// Save root information in a file
-			string filename = "node_" + to_string(k) + ".txt";
-			string keys = to_string(k);
-			createNode(filename, keys, "", true);
-
-			cout << "Root node created and key inserted: " << k << endl;
-			return;
-		}
-
-		if (root->n == ORDER - 1) {
-			// Root is full; need to split
-			BTreeNode<T, ORDER>* newRoot = new BTreeNode<T, ORDER>(false);
-			newRoot->children[0] = root;
-			splitChild(newRoot, 0);
-
-			int i = (k > newRoot->keys[0]) ? 1 : 0;
-			insertNonFull(newRoot->children[i], k);
-
-			// Delete the old root file
-			string oldFilename = generateNodeFilename(root);
-
-			if (std::remove(oldFilename.c_str()) == 0) {
-				cout << "Old root file deleted: " << oldFilename << endl;
-			}
-			else {
-				cerr << "Failed to delete old root file: " << oldFilename << endl;
-			}
-
-			root = newRoot;
-
-			// Create a new root file
-			string newRootFilename = generateNodeFilename(root);
-			string newRootKeys = generateKeysString(root);
-			createNode(newRootFilename, newRootKeys, "", false);
-
-			cout << "Root was split. New root created with key: " << root->keys[0] << endl;
-		}
-		else {
-			// Insert key in non-full root
-			insertNonFull(root, k);
-
-			// Delete the old root file
-			string oldFilename = generateNodeFilename(root);
-			if (std::remove(oldFilename.c_str()) == 0) {
-				cout << "Old root file deleted: " << oldFilename << endl;
-			}
-			else {
-				cerr << "Failed to delete old root file: " << oldFilename << endl;
-			}
-
-			// Create an updated file for the root
-			string newFilename = generateNodeFilename(root);
-			string keys = generateKeysString(root);
-			createNode(newFilename, keys, "", root->leaf);
-
-			cout << "Key inserted: " << k << endl;
-		}
-	}
-
-	// Helper functions
-	string generateNodeFilename(BTreeNode<T, ORDER>* node) {
-		string filename = "node_";
-		for (int i = 0; i < node->n; i++) {
-			if (i > 0) filename += "_";
-			filename += to_string(node->keys[i]);
-		}
-		filename += ".txt";
-		return filename;
-	}
-
-	string generateKeysString(BTreeNode<T, ORDER>* node) {
-		string keys;
-		for (int i = 0; i < node->n; i++) {
-			if (i > 0) keys += ",";
-			keys += to_string(node->keys[i]);
-		}
-		return keys;
-	}
 
 
 
@@ -471,6 +505,8 @@ public:
 		if (root != nullptr)
 			traverse(root);
 	}
+
+
 
 	// Function to search a key in the tree
 	BTreeNode<T, ORDER>* search(T k) {

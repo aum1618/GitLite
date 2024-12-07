@@ -123,8 +123,12 @@ int main()
 
 	*/
 
-	BTree<int, 3> tree;
+	BTree<int, 4> tree;
 	tree.insert(10);
 	tree.insert(15);
+	tree.insert(20);
+	tree.insert(25);
+	tree.insert(27);
+	tree.insert(23);
 	return 0;
 }
