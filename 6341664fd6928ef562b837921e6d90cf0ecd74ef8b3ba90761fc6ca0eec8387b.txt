@@ -1,0 +1,5 @@
+data=JASmINe aGuIlaR,82,Male,AB+,Asthma,2020-07-01,Daniel Ferguson,Sons Rich and,Cigna,50119.222791548505,316,Elective,2020-07-14,Aspirin,Abnormal
+hash=6341664fd6928ef562b837921e6d90cf0ecd74ef8b3ba90761fc6ca0eec8387b
+Left=4f2547e49960acdd8dc589644492b9822940e6d932eac4ee7d1196a510ae29f0.txt
+Right=8aa112ac53c84203e19debf4f55066944a1f93016bcb777fdbe9adf1b0972848.txt
+Height=3

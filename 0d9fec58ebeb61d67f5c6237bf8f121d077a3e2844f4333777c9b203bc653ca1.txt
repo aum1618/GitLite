@@ -1,0 +1,5 @@
+data=adrIENNE bEll,43,Female,AB+,Cancer,2022-09-19,Kathleen Hanna,White-White,Aetna,14238.317813937623,458,Urgent,2022-10-09,Penicillin,Abnormal
+hash=0d9fec58ebeb61d67f5c6237bf8f121d077a3e2844f4333777c9b203bc653ca1
+Left=null
+Right=null
+Height=1
