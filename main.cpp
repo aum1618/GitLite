@@ -6,7 +6,7 @@
 * GROUP MEMBERS:                      *
 * 1. MUHAMMAD UMER ABBAS (23I-0692)   *
 * 2. ADNAN AHMAD (23I-0715)           *
-* 3. ABDULLAH DURRANI (23I-0505)      *
+* 3. ABDULLAH DURRANI (23I-0605)      *
 * 4. MUHAMMAD ZAIN (23I-0855)         *
 ***************************************/
 
