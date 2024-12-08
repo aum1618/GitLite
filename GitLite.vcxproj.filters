@@ -15,29 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Hashes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AVL.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RBTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CUSTOM_STRING.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FileHandling.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="menu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

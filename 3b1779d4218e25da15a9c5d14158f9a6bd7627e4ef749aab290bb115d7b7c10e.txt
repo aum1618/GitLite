@@ -1,5 +1,0 @@
-data=CHrisTInA MARtinez,20,Female,A+,Cancer,2021-12-28,Suzanne Thomas,"Powell Robinson and Valdez,",Cigna,45820.46272159459,277,Emergency,2022-01-07,Paracetamol,Inconclusive
-hash=3b1779d4218e25da15a9c5d14158f9a6bd7627e4ef749aab290bb115d7b7c10e
-Left=null
-Right=null
-Height=1

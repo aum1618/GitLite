@@ -1,5 +1,0 @@
-data=connOR HANsEn,75,Female,A+,Diabetes,2019-12-12,Kenneth Fletcher,"Powers Miller, and Flores",Cigna,43282.28335770435,134,Emergency,2019-12-28,Penicillin,Abnormal
-hash=3a1f341d80571820a10f622ef4b30de0fc22c9de432c9ca3ac4e35116509c370
-Left=2e782b2098a683a96c9cdc1bc6cce1ff3291ca5146b7ad8e2f8a7d26032d4c53.txt
-Right=87f9ac90cc5281b4528ca0ce3ace8e50fa46d7d1855b2de6c94d1c49285b12fc.txt
-Height=2

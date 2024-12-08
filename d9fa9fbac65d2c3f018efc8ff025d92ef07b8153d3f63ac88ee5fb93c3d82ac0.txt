@@ -1,5 +1,0 @@
-data=Bobby JacksOn,30,Male,B-,Cancer,2024-01-31,Matthew Smith,Sons and Miller,Blue Cross,18856.281305978155,328,Urgent,2024-02-02,Paracetamol,Normal
-hash=d9fa9fbac65d2c3f018efc8ff025d92ef07b8153d3f63ac88ee5fb93c3d82ac0
-Left=null
-Right=f1ce5ff6a84ebc3b3d2759b518c60d58329660ec3e100137eab1c6ffdc897634.txt
-Height=2

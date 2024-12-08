@@ -1,5 +1,0 @@
-data=aaRon MARtiNeZ,38,Female,A-,Hypertension,2023-08-13,Douglas Mayo,Lyons-Blair,Medicare,7999.586879604188,288,Urgent,2023-09-05,Lipitor,Inconclusive
-hash=2e782b2098a683a96c9cdc1bc6cce1ff3291ca5146b7ad8e2f8a7d26032d4c53
-Left=null
-Right=null
-Height=1
