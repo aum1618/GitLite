@@ -66,14 +66,42 @@ Two hash generation methods are implemented:
 
 ## Contributors
 
-| ![aum1618](https://github.com/aum1618.png?size=10) [aum1618](https://github.com/aum1618) | ![Adnan75500](https://github.com/Adnan75500.png?size=10) [Adnan75500](https://github.com/Adnan75500) | ![AbdullahDurrani0007](https://github.com/AbdullahDurrani0007.png?size=10) [AbdullahDurrani0007](https://github.com/AbdullahDurrani0007) | ![MZI5239](https://github.com/MZI5239.png?size=10) [MZI5239](https://github.com/MZI5239) |
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%">
+        <a href="https://github.com/aum1618">
+          <img src="https://avatars.githubusercontent.com/u/109667306?v=4?s=100" width="100px;" alt="aum1618"/><br />
+          <sub><b>Umer</b></sub>
+        </a>
+      </td>
+      <td align="center" valign="top" width="14.28%">
+        <a href="https://github.com/Adnan75500">
+          <img src="https://avatars.githubusercontent.com/u/76838074?v=4?s=100" width="100px;" alt="Adnan75500"/><br />
+          <sub><b>Adnan</b></sub>
+        </a>
+      </td>
+      <td align="center" valign="top" width="14.28%">
+        <a href="https://github.com/AbdullahDurrani0007">
+          <img src="https://avatars.githubusercontent.com/u/147341390?v=4?s=100" width="100px;" alt="AbdullahDurrani0007"/><br />
+          <sub><b>Abdullah</b></sub>
+        </a>
+      </td>
+      <td align="center" valign="top" width="14.28%">
+        <a href="https://github.com/MZI5239">
+          <img src="https://avatars.githubusercontent.com/u/189113993?v=4?s=100" width="100px;" alt="MZI5239"/><br />
+          <sub><b>ZAIN</b></sub>
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 
 ## TODO
 
-- **Completed**: Node creation with AVL Tree.
-- **Pending**:
-  - Implement and integrate node creation for B-Tree.
-  - Implement and integrate node creation for Red-Black Tree.
+  - [ ] Implement and integrate node creation for B-Tree.  
+  - [ ] Implement and integrate node creation for Red-Black Tree.
 
 ## License
 
